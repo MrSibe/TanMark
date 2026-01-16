@@ -1,0 +1,4 @@
+@import 'tailwindcss';
+@import '../styles/base.css';
+
+/* 主题 CSS 将通过 JavaScript 动态注入，不再静态导入 */

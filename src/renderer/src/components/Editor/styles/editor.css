@@ -1,0 +1,291 @@
+/* Tanmark 编辑器样式 - Typora 风格 */
+
+.tanmark-editor-container {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial',
+    sans-serif;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--editor-text-color);
+  background: var(--color-bg);
+}
+
+/* 编辑器基础样式 */
+.tanmark-editor {
+  min-height: 100%;
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  color: var(--editor-text-color);
+}
+
+/* 标题样式 - Typora 风格 */
+.tanmark-editor h1,
+.tanmark-editor h2,
+.tanmark-editor h3,
+.tanmark-editor h4,
+.tanmark-editor h5,
+.tanmark-editor h6 {
+  font-weight: 600;
+  line-height: 1.25;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  color: var(--editor-heading-color);
+}
+
+.tanmark-editor h1 {
+  font-size: 2.25rem;
+}
+.tanmark-editor h2 {
+  font-size: 1.875rem;
+}
+.tanmark-editor h3 {
+  font-size: 1.5rem;
+}
+.tanmark-editor h4 {
+  font-size: 1.25rem;
+}
+.tanmark-editor h5 {
+  font-size: 1.125rem;
+}
+.tanmark-editor h6 {
+  font-size: 1rem;
+}
+
+/* 段落 */
+.tanmark-editor p {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  color: var(--editor-text-color);
+}
+
+/* 列表 */
+.tanmark-editor ul,
+.tanmark-editor ol {
+  margin: 1em 0;
+  padding-left: 2em;
+  color: var(--editor-text-color);
+}
+
+.tanmark-editor ul {
+  list-style-type: disc;
+}
+
+.tanmark-editor ol {
+  list-style-type: decimal;
+}
+
+.tanmark-editor ul ul {
+  list-style-type: circle;
+  margin: 0;
+}
+
+.tanmark-editor ul ul ul {
+  list-style-type: square;
+}
+
+.tanmark-editor ol ol {
+  margin: 0;
+}
+
+.tanmark-editor li {
+  margin: 0.25em 0;
+  color: var(--editor-text-color);
+  display: list-item;
+}
+
+/* 引用块 - Typora 风格 */
+.tanmark-editor blockquote {
+  margin: 1.5em 0;
+  padding: 0.5rem 1rem;
+  border-left: 4px solid var(--editor-blockquote-border);
+  background: var(--editor-blockquote-bg);
+  color: var(--editor-blockquote-text);
+}
+
+/* 代码块 - Typora 风格 + 增强视觉效果 */
+.tanmark-editor pre {
+  margin: 1.5em 0;
+  padding: 1rem;
+  background: var(--editor-codeblock-bg, #1e1e1e);
+  color: var(--editor-codeblock-text, #d4d4d4);
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 行内代码 */
+.tanmark-editor code {
+  padding: 0.2em 0.4em;
+  background: var(--editor-code-bg);
+  border: 1px solid var(--editor-code-border);
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875em;
+  border-radius: 3px;
+  color: var(--editor-text-color);
+}
+
+/* 代码块内的 code 标签需要重置样式 */
+.tanmark-editor pre code {
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: inherit;
+  border-radius: 0;
+}
+
+/* 水平线 - Typora 风格 */
+.tanmark-editor hr {
+  margin: 2em 0;
+  border: none;
+  border-top: 1px solid var(--color-border);
+}
+
+/* 链接 */
+.tanmark-editor a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.tanmark-editor a:hover {
+  text-decoration: underline;
+}
+
+/* 光标样式 */
+.ProseMirror-focused {
+  outline: none;
+}
+
+/* 选择样式 */
+.ProseMirror ::selection {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+/* 粗体和斜体 */
+.tanmark-editor strong {
+  font-weight: 600;
+  color: var(--editor-heading-color);
+}
+
+.tanmark-editor em {
+  font-style: italic;
+}
+
+/* 表格样式 - Typora 风格 */
+.tanmark-editor table {
+  width: 100%;
+  margin: 1.5em 0;
+  border-collapse: collapse;
+  border: 1px solid var(--editor-table-border);
+}
+
+.tanmark-editor th,
+.tanmark-editor td {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--editor-table-border);
+  text-align: left;
+}
+
+.tanmark-editor th {
+  background: var(--editor-table-header-bg);
+  font-weight: 600;
+  color: var(--editor-heading-color);
+}
+
+.tanmark-editor tr:nth-child(even) {
+  background: var(--editor-table-row-even-bg);
+}
+
+.tanmark-editor tr:hover {
+  background: var(--editor-table-row-hover-bg);
+}
+
+/* 任务列表样式 - GitHub 风格 */
+.tanmark-editor ul.tanmark-task-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 1em 0;
+}
+
+.tanmark-editor li.tanmark-task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0.25em 0;
+}
+
+.tanmark-editor li.tanmark-task-item > label {
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+  user-select: none;
+  cursor: pointer;
+}
+
+/* 隐藏 label 中的空 span */
+.tanmark-editor li.tanmark-task-item > label > span {
+  display: none;
+}
+
+/* 自定义 checkbox 样式 - GitHub 风格 */
+.tanmark-editor li.tanmark-task-item > label input[type='checkbox'] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border: 1.5px solid #d0d7de;
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+  background: var(--color-bg);
+  margin: 0;
+}
+
+.tanmark-editor li.tanmark-task-item > label input[type='checkbox']:hover {
+  border-color: #0969da;
+  background: #f6f8fa;
+}
+
+.tanmark-editor li.tanmark-task-item > label input[type='checkbox']:checked {
+  background: #0969da;
+  border-color: #0969da;
+}
+
+/* GitHub 风格对勾 - 居中对齐 */
+.tanmark-editor li.tanmark-task-item > label input[type='checkbox']:checked::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.25rem;
+  height: 0.5rem;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: translate(-50%, -65%) rotate(45deg);
+}
+
+.tanmark-editor li.tanmark-task-item > div {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 确保段落即使为空也能显示和点击 */
+.tanmark-editor li.tanmark-task-item > div > p {
+  min-height: 1.5em;
+  margin: 0;
+  cursor: text;
+}
+
+/* 已完成任务的样式 */
+.tanmark-editor li.tanmark-task-item[data-checked='true'] > div {
+  text-decoration: line-through;
+  color: #6e7781;
+  opacity: 0.75;
+}
+
