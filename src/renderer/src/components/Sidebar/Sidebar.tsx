@@ -4,7 +4,7 @@ import { useFileStore } from '../../stores/useFileStore'
 import { useSidebarStore } from '../../stores/useSidebarStore'
 import { FileTree } from './FileTree'
 
-export const Sidebar = (): JSX.Element => {
+export const AppSidebar = (): JSX.Element => {
   const { openFolder, workingDirectory } = useFileStore()
   const { close } = useSidebarStore()
 
