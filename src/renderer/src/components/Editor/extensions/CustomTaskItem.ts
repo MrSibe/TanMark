@@ -10,9 +10,9 @@ export const CustomTaskItem = TaskItem.extend({
         default: false,
         parseHTML: (element) => element.getAttribute('data-checked') === 'true',
         renderHTML: (attributes) => ({
-          'data-checked': attributes.checked,
-        }),
-      },
+          'data-checked': attributes.checked
+        })
+      }
     }
   },
 
@@ -20,8 +20,8 @@ export const CustomTaskItem = TaskItem.extend({
     return [
       {
         tag: 'li[data-type="taskItem"]',
-        priority: 51,
-      },
+        priority: 51
+      }
     ]
   },
 
@@ -30,7 +30,7 @@ export const CustomTaskItem = TaskItem.extend({
       'li',
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
         'data-type': 'taskItem',
-        'data-checked': node.attrs.checked,
+        'data-checked': node.attrs.checked
       }),
       [
         'label',
@@ -38,18 +38,18 @@ export const CustomTaskItem = TaskItem.extend({
           'input',
           {
             type: 'checkbox',
-            checked: node.attrs.checked ? 'checked' : null,
-          },
-        ],
+            checked: node.attrs.checked ? 'checked' : null
+          }
+        ]
       ],
-      ['div', 0], // 0 表示内容插入点
+      ['div', 0] // 0 表示内容插入点
     ]
   },
 
   addKeyboardShortcuts() {
     const shortcuts = {
       Enter: () => this.editor.commands.splitListItem(this.name),
-      'Shift-Tab': () => this.editor.commands.liftListItem(this.name),
+      'Shift-Tab': () => this.editor.commands.liftListItem(this.name)
     }
 
     if (!this.options.nested) {
@@ -58,7 +58,7 @@ export const CustomTaskItem = TaskItem.extend({
 
     return {
       ...shortcuts,
-      Tab: () => this.editor.commands.sinkListItem(this.name),
+      Tab: () => this.editor.commands.sinkListItem(this.name)
     }
-  },
+  }
 })

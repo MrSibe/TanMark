@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import type { JSX } from 'react'
 
 interface InputDialogProps {
   title: string
@@ -7,25 +8,30 @@ interface InputDialogProps {
   onCancel: () => void
 }
 
-export const InputDialog = ({ title, placeholder, onConfirm, onCancel }: InputDialogProps) => {
+export const InputDialog = ({
+  title,
+  placeholder,
+  onConfirm,
+  onCancel
+}: InputDialogProps): JSX.Element => {
   const [value, setValue] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
+  useEffect((): (() => void) => {
     // 自动聚焦输入框
     inputRef.current?.focus()
 
-    const handleEscape = (e: KeyboardEvent) => {
+    const handleEscape = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') {
         onCancel()
       }
     }
 
     document.addEventListener('keydown', handleEscape)
-    return () => document.removeEventListener('keydown', handleEscape)
+    return (): void => document.removeEventListener('keydown', handleEscape)
   }, [onCancel])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent): void => {
     e.preventDefault()
     if (value.trim()) {
       onConfirm(value.trim())

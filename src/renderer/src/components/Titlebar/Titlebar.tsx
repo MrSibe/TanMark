@@ -1,12 +1,13 @@
 import { useFileStore } from '../../stores/useFileStore'
 import { Settings } from 'lucide-react'
+import type { JSX } from 'react'
 
 interface TitlebarProps {
   position: 'left' | 'right'
   onSettingsClick?: () => void
 }
 
-export const Titlebar = ({ position, onSettingsClick }: TitlebarProps) => {
+export const Titlebar = ({ position, onSettingsClick }: TitlebarProps): JSX.Element => {
   const { currentFile, isModified } = useFileStore()
 
   if (position === 'left') {
@@ -20,11 +21,7 @@ export const Titlebar = ({ position, onSettingsClick }: TitlebarProps) => {
         {isModified && ' •'}
       </div>
       {onSettingsClick && (
-        <button
-          className="titlebar-settings-button"
-          onClick={onSettingsClick}
-          title="设置"
-        >
+        <button className="titlebar-settings-button" onClick={onSettingsClick} title="设置">
           <Settings size={16} />
         </button>
       )}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { JSX } from 'react'
 import { Modal } from '../Modal/Modal'
 import { Palette } from 'lucide-react'
 import { ThemeSettings } from './ThemeSettings'
@@ -28,7 +29,11 @@ interface SettingsWindowContentProps {
   children: React.ReactNode
 }
 
-const SettingsWindowContent = ({ activeCategory, onCategoryChange, children }: SettingsWindowContentProps) => {
+const SettingsWindowContent = ({
+  activeCategory,
+  onCategoryChange,
+  children
+}: SettingsWindowContentProps): JSX.Element => {
   return (
     <div className="settings-window">
       {/* 左侧侧边栏 */}
@@ -52,22 +57,17 @@ const SettingsWindowContent = ({ activeCategory, onCategoryChange, children }: S
       </div>
 
       {/* 右侧内容区域 */}
-      <div className="settings-content">
-        {children}
-      </div>
+      <div className="settings-content">{children}</div>
     </div>
   )
 }
 
-export const SettingsWindow = ({ isOpen, onClose }: SettingsWindowProps) => {
+export const SettingsWindow = ({ isOpen, onClose }: SettingsWindowProps): JSX.Element => {
   const [activeCategory, setActiveCategory] = useState<SettingsCategory>('theme')
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="设置" width="900px" height="600px">
-      <SettingsWindowContent
-        activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
-      >
+      <SettingsWindowContent activeCategory={activeCategory} onCategoryChange={setActiveCategory}>
         {/* 根据 activeCategory 渲染不同的设置页面 */}
         {activeCategory === 'theme' && <ThemeSettings />}
       </SettingsWindowContent>

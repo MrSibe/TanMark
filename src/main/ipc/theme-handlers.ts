@@ -1,7 +1,31 @@
 // Tanmark 主题 IPC 处理器 - 双层主题扫描和加载
-import { ipcMain, app, shell } from 'electron'
+import { ipcMain, app, shell, BrowserWindow } from 'electron'
 import fs from 'fs/promises'
 import path from 'path'
+
+// 获取主窗口实例（需要在应用启动后调用）
+function getMainWindow(): BrowserWindow | null {
+  const windows = BrowserWindow.getAllWindows()
+  return windows.length > 0 ? windows[0] : null
+}
+
+/**
+ * 从 CSS 内容中解析背景色
+ */
+function parseBackgroundColor(cssContent: string): string | null {
+  const match = cssContent.match(/--color-bg:\s*([^;]+)/)
+  return match ? match[1].trim() : null
+}
+
+/**
+ * 更新窗口背景色
+ */
+function updateWindowBackgroundColor(color: string): void {
+  const mainWindow = getMainWindow()
+  if (mainWindow) {
+    mainWindow.setBackgroundColor(color)
+  }
+}
 
 export interface ThemeInfo {
   id: string // 主题 ID (文件名，不含扩展名)
@@ -83,7 +107,6 @@ async function scanThemesFromDirectory(
       })
     }
 
-    console.log(`[Theme] Found ${themes.length} ${source} themes in ${dir}`)
     return themes
   } catch (error) {
     console.error(`[Theme] Error scanning ${source} themes in ${dir}:`, error)
@@ -117,8 +140,6 @@ async function scanAllThemes(): Promise<ThemeInfo[]> {
   }
 
   const allThemes = Array.from(themeMap.values())
-  console.log(`[Theme] Total themes available: ${allThemes.length}`)
-
   return allThemes
 }
 
@@ -131,12 +152,10 @@ async function ensureUserThemesDirectory(): Promise<void> {
   try {
     // 检查目录是否存在
     await fs.access(userThemesDir)
-    console.log(`[Theme] User themes directory already exists: ${userThemesDir}`)
   } catch {
     // 目录不存在，创建它
     try {
       await fs.mkdir(userThemesDir, { recursive: true })
-      console.log(`[Theme] Created user themes directory: ${userThemesDir}`)
 
       // 复制模板文件到用户主题文件夹
       const builtInTemplateSource = path.join(getBuiltInThemesDirectory(), 'template.css')
@@ -145,7 +164,6 @@ async function ensureUserThemesDirectory(): Promise<void> {
       try {
         const templateContent = await fs.readFile(builtInTemplateSource, 'utf-8')
         await fs.writeFile(userTemplateDest, templateContent, 'utf-8')
-        console.log(`[Theme] Copied template.css to user themes directory`)
       } catch (error) {
         console.error(`[Theme] Error copying template.css:`, error)
       }
@@ -196,5 +214,12 @@ export function registerThemeHandlers(): void {
     return true
   })
 
-  console.log('[Theme] IPC handlers registered')
+  // 应用主题时更新窗口背景色
+  ipcMain.handle('theme:applyTheme', async (_, cssContent: string) => {
+    const bgColor = parseBackgroundColor(cssContent)
+    if (bgColor) {
+      updateWindowBackgroundColor(bgColor)
+    }
+    return true
+  })
 }

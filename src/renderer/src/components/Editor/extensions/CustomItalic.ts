@@ -26,22 +26,22 @@ export const CustomItalic = Mark.create<ItalicOptions>({
 
   addOptions() {
     return {
-      HTMLAttributes: {},
+      HTMLAttributes: {}
     }
   },
 
   parseHTML() {
     return [
       {
-        tag: 'em',
+        tag: 'em'
       },
       {
         tag: 'i',
-        getAttrs: (node) => (node as HTMLElement).style.fontStyle !== 'normal' && null,
+        getAttrs: (node) => (node as HTMLElement).style.fontStyle !== 'normal' && null
       },
       {
-        style: 'font-style=italic',
-      },
+        style: 'font-style=italic'
+      }
     ]
   },
 
@@ -65,14 +65,14 @@ export const CustomItalic = Mark.create<ItalicOptions>({
         () =>
         ({ commands }) => {
           return commands.unsetMark(this.name)
-        },
+        }
     }
   },
 
   addKeyboardShortcuts() {
     return {
       'Mod-i': () => this.editor.commands.toggleItalic(),
-      'Mod-I': () => this.editor.commands.toggleItalic(),
+      'Mod-I': () => this.editor.commands.toggleItalic()
     }
   },
 
@@ -83,13 +83,13 @@ export const CustomItalic = Mark.create<ItalicOptions>({
       // CJK 版: /(?:^|)((?:\*)((?:[^*]+))(?:\*))$/
       markInputRule({
         find: /(?:^|)((?:\*)((?:[^*]+))(?:\*))$/,
-        type: this.type,
+        type: this.type
       }),
       // 也支持 _ 语法
       markInputRule({
         find: /(?:^|)((?:_)((?:[^_]+))(?:_))$/,
-        type: this.type,
-      }),
+        type: this.type
+      })
     ]
   },
 
@@ -97,12 +97,12 @@ export const CustomItalic = Mark.create<ItalicOptions>({
     return [
       markPasteRule({
         find: /(?:^|)((?:\*)((?:[^*]+))(?:\*))/g,
-        type: this.type,
+        type: this.type
       }),
       markPasteRule({
         find: /(?:^|)((?:_)((?:[^_]+))(?:_))/g,
-        type: this.type,
-      }),
+        type: this.type
+      })
     ]
-  },
+  }
 })

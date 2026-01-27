@@ -42,8 +42,10 @@
 
 /* 通用过渡效果 */
 * {
-  transition: background-color var(--transition-speed) ease,
-    color var(--transition-speed) ease, border-color var(--transition-speed) ease;
+  transition:
+    background-color var(--transition-speed) ease,
+    color var(--transition-speed) ease,
+    border-color var(--transition-speed) ease;
 }
 
 /* 主布局容器 */
@@ -250,7 +252,7 @@
 .file-tree-item {
   display: flex;
   align-items: center;
-  padding: 0.4rem 1rem;
+  padding: 0.4rem 0.5rem;
   cursor: pointer;
   font-size: 0.875rem;
   color: var(--color-fg);
@@ -277,7 +279,6 @@
 .file-tree-item-name {
   flex: 1;
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -286,12 +287,12 @@
 }
 
 .file-tree-item-file {
-  padding-left: 1.5rem;
+  padding-left: 0;
 }
 
 /* 嵌套文件夹的缩进 */
 .file-tree-children {
-  margin-left: 1rem;
+  margin-left: 0;
 }
 
 /* 滚动条样式 - 简洁现代 */

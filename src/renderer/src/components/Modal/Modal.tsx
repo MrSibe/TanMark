@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
+import type { JSX } from 'react'
 import './modal.css'
 
 interface ModalProps {
@@ -11,12 +12,19 @@ interface ModalProps {
   height?: string
 }
 
-export const Modal = ({ isOpen, onClose, title, children, width = '80vw', height = '80vh' }: ModalProps) => {
+export const Modal = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+  width = '80vw',
+  height = '80vh'
+}: ModalProps): JSX.Element | null => {
   const modalRef = useRef<HTMLDivElement>(null)
 
   // ESC 键关闭
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
+  useEffect((): (() => void) => {
+    const handleEsc = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') {
         onClose()
       }
@@ -28,14 +36,14 @@ export const Modal = ({ isOpen, onClose, title, children, width = '80vw', height
       document.body.style.overflow = 'hidden'
     }
 
-    return () => {
+    return (): void => {
       document.removeEventListener('keydown', handleEsc)
       document.body.style.overflow = 'unset'
     }
   }, [isOpen, onClose])
 
   // 点击背景关闭
-  const handleBackdropClick = (e: React.MouseEvent) => {
+  const handleBackdropClick = (e: React.MouseEvent): void => {
     if (e.target === e.currentTarget) {
       onClose()
     }
@@ -62,9 +70,7 @@ export const Modal = ({ isOpen, onClose, title, children, width = '80vw', height
         )}
 
         {/* 内容区域 */}
-        <div className="modal-content">
-          {children}
-        </div>
+        <div className="modal-content">{children}</div>
       </div>
     </div>
   )

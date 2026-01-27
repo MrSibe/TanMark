@@ -1,11 +1,12 @@
 import { useThemeStore } from '../../stores/useThemeStore'
 import { Check, FolderOpen } from 'lucide-react'
+import type { JSX } from 'react'
 import './theme-settings.css'
 
-export const ThemeSettings = () => {
+export const ThemeSettings = (): JSX.Element => {
   const { currentTheme, availableThemes, switchTheme } = useThemeStore()
 
-  const handleOpenUserThemesFolder = async () => {
+  const handleOpenUserThemesFolder = async (): Promise<void> => {
     try {
       await window.api.theme.openUserThemesFolder()
     } catch (error) {
@@ -53,7 +54,8 @@ export const ThemeSettings = () => {
             <span>打开用户主题文件夹</span>
           </button>
           <p className="settings-hint">
-            你可以将自定义主题文件（.css）放入用户主题文件夹中。参考 template.css 模板创建你自己的主题。
+            你可以将自定义主题文件（.css）放入用户主题文件夹中。参考 template.css
+            模板创建你自己的主题。
           </p>
         </div>
       </div>

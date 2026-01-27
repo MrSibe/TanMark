@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { FileText, FolderPlus, Trash2 } from 'lucide-react'
+import { FileText, FolderPlus, Trash2, Edit3 } from 'lucide-react'
 
 interface ContextMenuProps {
   x: number
@@ -9,6 +9,7 @@ interface ContextMenuProps {
   onClose: () => void
   onNewFile: () => void
   onNewFolder: () => void
+  onRename: () => void
   onDelete?: () => void
 }
 
@@ -20,18 +21,19 @@ export const ContextMenu = ({
   onClose,
   onNewFile,
   onNewFolder,
-  onDelete,
-}: ContextMenuProps) => {
+  onRename,
+  onDelete
+}: ContextMenuProps): JSX.Element => {
   const menuRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
+  useEffect((): (() => void) => {
+    const handleClickOutside = (e: MouseEvent): void => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         onClose()
       }
     }
 
-    const handleEscape = (e: KeyboardEvent) => {
+    const handleEscape = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') {
         onClose()
       }
@@ -40,7 +42,7 @@ export const ContextMenu = ({
     document.addEventListener('mousedown', handleClickOutside)
     document.addEventListener('keydown', handleEscape)
 
-    return () => {
+    return (): void => {
       document.removeEventListener('mousedown', handleClickOutside)
       document.removeEventListener('keydown', handleEscape)
     }
@@ -53,14 +55,14 @@ export const ContextMenu = ({
       style={{
         position: 'fixed',
         left: `${x}px`,
-        top: `${y}px`,
+        top: `${y}px`
       }}
     >
       {isDirectory && (
         <>
           <div
             className="context-menu-item"
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent): void => {
               e.stopPropagation()
               onNewFile()
               onClose()
@@ -71,7 +73,7 @@ export const ContextMenu = ({
           </div>
           <div
             className="context-menu-item"
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent): void => {
               e.stopPropagation()
               onNewFolder()
               onClose()
@@ -82,10 +84,21 @@ export const ContextMenu = ({
           </div>
         </>
       )}
+      <div
+        className="context-menu-item"
+        onClick={(e: React.MouseEvent): void => {
+          e.stopPropagation()
+          onRename()
+          onClose()
+        }}
+      >
+        <Edit3 size={14} />
+        <span>重命名</span>
+      </div>
       {showDelete && onDelete && (
         <div
           className="context-menu-item"
-          onClick={(e) => {
+          onClick={(e: React.MouseEvent): void => {
             e.stopPropagation()
             onDelete()
             onClose()

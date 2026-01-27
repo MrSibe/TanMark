@@ -1,6 +1,8 @@
 import { ChevronRight, ChevronDown, File, Folder } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import type { JSX } from 'react'
 import { useFileStore } from '../../stores/useFileStore'
+import { truncateFileName } from '../../utils/filename'
 
 interface DirectoryItem {
   name: string
@@ -15,11 +17,17 @@ interface FileTreeItemProps {
   onContextMenu?: (e: React.MouseEvent, targetPath: string, isDirectory: boolean) => void
 }
 
-export const FileTreeItem = ({ item, level = 0, onContextMenu }: FileTreeItemProps) => {
+export const FileTreeItem = ({
+  item,
+  level = 0,
+  onContextMenu
+}: FileTreeItemProps): JSX.Element => {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [displayName, setDisplayName] = useState('')
   const { currentFile, openFileFromTree } = useFileStore()
+  const nameRef = useRef<HTMLDivElement>(null)
 
-  const handleClick = () => {
+  const handleClick = (): void => {
     if (item.isDirectory) {
       setIsExpanded(!isExpanded)
     } else {
@@ -27,7 +35,7 @@ export const FileTreeItem = ({ item, level = 0, onContextMenu }: FileTreeItemPro
     }
   }
 
-  const handleContextMenu = (e: React.MouseEvent) => {
+  const handleContextMenu = (e: React.MouseEvent): void => {
     if (onContextMenu) {
       onContextMenu(e, item.path, item.isDirectory)
     }
@@ -36,13 +44,47 @@ export const FileTreeItem = ({ item, level = 0, onContextMenu }: FileTreeItemPro
   const isActive = currentFile?.path === item.path
 
   // 移除 .md 后缀显示
-  const displayName = item.isDirectory ? item.name : item.name.replace(/\.md$/i, '')
+  const rawName = item.isDirectory ? item.name : item.name.replace(/\.md$/i, '')
+
+  // 根据容器宽度动态计算文件名截断
+  useEffect((): (() => void) => {
+    const updateDisplayName = (): void => {
+      if (!nameRef.current) {
+        setDisplayName(rawName)
+        return
+      }
+
+      const containerWidth = nameRef.current.offsetWidth
+      // 估算：每个字符大约14px宽度（根据font-size: 0.875rem）
+      const charWidth = 14
+      const maxChars = Math.floor(containerWidth / charWidth)
+
+      if (maxChars < 8) {
+        // 容器太小，至少显示8个字符
+        setDisplayName(truncateFileName(rawName, 8))
+      } else {
+        setDisplayName(truncateFileName(rawName, maxChars))
+      }
+    }
+
+    updateDisplayName()
+
+    // 监听窗口大小变化
+    const resizeObserver = new ResizeObserver(updateDisplayName)
+    if (nameRef.current) {
+      resizeObserver.observe(nameRef.current)
+    }
+
+    return (): void => {
+      resizeObserver.disconnect()
+    }
+  }, [rawName])
 
   return (
-    <div>
+    <>
       <div
         className={`file-tree-item ${isActive ? 'active' : ''}`}
-        style={{ paddingLeft: `${level * 1 + 1}rem` }}
+        style={{ paddingLeft: `${level * 0.5 + 0.5}rem` }}
         onClick={handleClick}
         onContextMenu={handleContextMenu}
       >
@@ -60,7 +102,9 @@ export const FileTreeItem = ({ item, level = 0, onContextMenu }: FileTreeItemPro
             <File size={16} />
           </div>
         )}
-        <div className="file-tree-item-name">{displayName}</div>
+        <div className="file-tree-item-name" ref={nameRef} title={rawName}>
+          {displayName}
+        </div>
       </div>
 
       {item.isDirectory && isExpanded && item.children && (
@@ -75,6 +119,6 @@ export const FileTreeItem = ({ item, level = 0, onContextMenu }: FileTreeItemPro
           ))}
         </div>
       )}
-    </div>
+    </>
   )
 }

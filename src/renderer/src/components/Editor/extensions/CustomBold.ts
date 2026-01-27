@@ -28,23 +28,23 @@ export const CustomBold = Mark.create<BoldOptions>({
 
   addOptions() {
     return {
-      HTMLAttributes: {},
+      HTMLAttributes: {}
     }
   },
 
   parseHTML() {
     return [
       {
-        tag: 'strong',
+        tag: 'strong'
       },
       {
         tag: 'b',
-        getAttrs: (node) => (node as HTMLElement).style.fontWeight !== 'normal' && null,
+        getAttrs: (node) => (node as HTMLElement).style.fontWeight !== 'normal' && null
       },
       {
         style: 'font-weight',
-        getAttrs: (value) => /^(bold(er)?|[5-9]\d{2,})$/.test(value as string) && null,
-      },
+        getAttrs: (value) => /^(bold(er)?|[5-9]\d{2,})$/.test(value as string) && null
+      }
     ]
   },
 
@@ -68,14 +68,14 @@ export const CustomBold = Mark.create<BoldOptions>({
         () =>
         ({ commands }) => {
           return commands.unsetMark(this.name)
-        },
+        }
     }
   },
 
   addKeyboardShortcuts() {
     return {
       'Mod-b': () => this.editor.commands.toggleBold(),
-      'Mod-B': () => this.editor.commands.toggleBold(),
+      'Mod-B': () => this.editor.commands.toggleBold()
     }
   },
 
@@ -86,13 +86,13 @@ export const CustomBold = Mark.create<BoldOptions>({
       // CJK 版: /(?:^|)((?:\*\*)((?:[^*]+))(?:\*\*))$/
       markInputRule({
         find: /(?:^|)((?:\*\*)((?:[^*]+))(?:\*\*))$/,
-        type: this.type,
+        type: this.type
       }),
       // 也支持 __ 语法
       markInputRule({
         find: /(?:^|)((?:__)((?:[^_]+))(?:__))$/,
-        type: this.type,
-      }),
+        type: this.type
+      })
     ]
   },
 
@@ -100,12 +100,12 @@ export const CustomBold = Mark.create<BoldOptions>({
     return [
       markPasteRule({
         find: /(?:^|)((?:\*\*)((?:[^*]+))(?:\*\*))/g,
-        type: this.type,
+        type: this.type
       }),
       markPasteRule({
         find: /(?:^|)((?:__)((?:[^_]+))(?:__))/g,
-        type: this.type,
-      }),
+        type: this.type
+      })
     ]
-  },
+  }
 })

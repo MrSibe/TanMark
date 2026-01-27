@@ -6,7 +6,12 @@ import { useThemeStore } from '../stores/useThemeStore'
  * 主题管理 Hook
  * 自动加载主题，并提供主题切换功能
  */
-export function useTheme() {
+export function useTheme(): {
+  currentTheme: ReturnType<typeof useThemeStore>['currentTheme']
+  availableThemes: ReturnType<typeof useThemeStore>['availableThemes']
+  isLoaded: ReturnType<typeof useThemeStore>['isLoaded']
+  switchTheme: ReturnType<typeof useThemeStore>['switchTheme']
+} {
   const { currentTheme, availableThemes, isLoaded, loadThemes, loadCurrentTheme, switchTheme } =
     useThemeStore()
 

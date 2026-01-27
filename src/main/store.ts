@@ -15,30 +15,30 @@ const store = new Store<AppSettings>({
  */
 export function setupSettingsIPC(): void {
   // 获取设置
-  ipcMain.handle('settings:get', (_event, key?: string) => {
+  ipcMain.handle('settings:get', (_event, key?: keyof AppSettings) => {
     if (key) {
-      return store.get(key as any)
+      return store.get(key)
     }
     return store.store
   })
 
   // 修改设置
-  ipcMain.handle('settings:set', (event, key: string, value: any) => {
-    store.set(key as any, value)
-    console.log(`[Settings] Updated: ${key} =`, value)
+  ipcMain.handle(
+    'settings:set',
+    (event, key: keyof AppSettings, value: AppSettings[keyof AppSettings]) => {
+      store.set(key, value)
 
-    // 广播通知所有渲染进程更新（实现多窗口同步）
-    event.sender.send('settings:updated', store.store)
-    return true
-  })
+      // 广播通知所有渲染进程更新（实现多窗口同步）
+      event.sender.send('settings:updated', store.store)
+      return true
+    }
+  )
 
   // 打开配置文件
   ipcMain.handle('settings:openFile', () => {
     store.openInEditor()
     return true
   })
-
-  console.log('[Settings] IPC handlers registered')
 }
 
 /**

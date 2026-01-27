@@ -59,6 +59,7 @@
     "electron-store": "^11.0.2",
     "electron-updater": "^6.3.9",
     "lucide-react": "^0.562.0",
+    "react-photo-view": "^1.2.7",
     "tiptap-markdown": "^0.9.0",
     "zustand": "^5.0.10"
   },

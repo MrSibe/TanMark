@@ -5,6 +5,7 @@ import icon from '../../resources/icon.png?asset'
 import { registerFileHandlers } from './ipc/file-handlers'
 import { setupSettingsIPC } from './store'
 import { registerThemeHandlers } from './ipc/theme-handlers'
+import { registerTanmarkScheme, setupProtocolHandler } from './protocol/tanmark-protocol'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -13,7 +14,10 @@ function createWindow(): void {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    minWidth: 800,
+    minHeight: 600,
     show: false,
+    backgroundColor: '#fafafa',
     autoHideMenuBar: true,
     titleBarStyle: 'hidden', // 隐藏原生标题栏，但保留窗口控制按钮
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -21,8 +25,8 @@ function createWindow(): void {
       preload: join(__dirname, '../preload/index.mjs'),
       sandbox: false,
       contextIsolation: true,
-      nodeIntegration: false,
-    },
+      nodeIntegration: false
+    }
   })
 
   mainWindow.on('ready-to-show', () => {
@@ -46,6 +50,10 @@ function createWindow(): void {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+
+// 在 app.whenReady() 之前注册协议方案
+registerTanmarkScheme()
+
 app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.tanmark')
@@ -64,6 +72,9 @@ app.whenReady().then(() => {
 
   createWindow()
 
+  // 设置自定义协议处理器
+  setupProtocolHandler()
+
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
@@ -72,7 +83,7 @@ app.whenReady().then(() => {
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
+// for applications and menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {

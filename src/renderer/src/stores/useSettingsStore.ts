@@ -8,7 +8,7 @@ interface SettingsState {
 
   // Actions
   loadSettings: () => Promise<void>
-  updateSetting: (path: string, value: any) => Promise<void>
+  updateSetting: (path: string, value: AppSettings[keyof AppSettings]) => Promise<void>
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
@@ -20,7 +20,6 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     try {
       const saved = await window.api.settings.getAll()
       set({ settings: saved, isLoaded: true })
-      console.log('[Settings] Loaded settings:', saved)
     } catch (error) {
       console.error('[Settings] Error loading settings:', error)
     }
@@ -32,14 +31,14 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     const keys = path.split('.')
     set((state) => {
       const newSettings = { ...state.settings }
-      let current: any = newSettings
+      let current: Record<string, unknown> = newSettings
 
       // 导航到需要更新的嵌套属性
       for (let i = 0; i < keys.length - 1; i++) {
         if (!current[keys[i]]) {
           current[keys[i]] = {}
         }
-        current = current[keys[i]]
+        current = current[keys[i]] as Record<string, unknown>
       }
 
       // 设置新值
@@ -51,7 +50,6 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     // 2. 通知 Electron 写入硬盘
     try {
       await window.api.settings.set(path, value)
-      console.log('[Settings] Updated setting:', path, '=', value)
     } catch (error) {
       console.error('[Settings] Error updating setting:', error)
 
@@ -65,6 +63,5 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
 if (typeof window !== 'undefined' && window.api) {
   window.api.settings.onUpdate((newSettings) => {
     useSettingsStore.setState({ settings: newSettings })
-    console.log('[Settings] Settings updated from main process')
   })
 }

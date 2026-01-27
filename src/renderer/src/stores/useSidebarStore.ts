@@ -20,5 +20,5 @@ export const useSidebarStore = create<SidebarState>()((set) => ({
   toggle: () => set((state) => ({ isOpen: !state.isOpen })),
   open: () => set({ isOpen: true }),
   close: () => set({ isOpen: false }),
-  setWidth: (width) => set({ width }),
+  setWidth: (width) => set({ width })
 }))

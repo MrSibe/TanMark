@@ -1,8 +1,8 @@
 /* Tanmark 编辑器样式 - Typora 风格 */
 
 .tanmark-editor-container {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial',
-    sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
   font-size: 16px;
   line-height: 1.75;
   color: var(--editor-text-color);
@@ -56,6 +56,35 @@
   margin-top: 1em;
   margin-bottom: 1em;
   color: var(--editor-text-color);
+}
+
+/* 图片节点布局 */
+.tanmark-editor .image-node-wrapper {
+  width: 100%;
+}
+
+.tanmark-editor .image-node-wrapper img {
+  display: block;
+  margin: 0 auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* 内联输入：继承正文样式 */
+.tanmark-editor .tanmark-inline-input {
+  font: inherit;
+  color: inherit;
+  line-height: inherit;
+}
+
+.tanmark-editor .tanmark-inline-input::selection {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.tanmark-editor .tanmark-inline-input::-moz-selection {
+  background: var(--color-accent);
+  color: #fff;
 }
 
 /* 列表 */
@@ -158,6 +187,33 @@
 /* 光标样式 */
 .ProseMirror-focused {
   outline: none;
+}
+
+/* Gap cursor（避免块节点间出现整块光标） */
+.ProseMirror-gapcursor {
+  display: none;
+  pointer-events: none;
+  position: absolute;
+}
+
+.ProseMirror-gapcursor:after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: -2px;
+  width: 20px;
+  border-top: 1px solid var(--color-accent);
+  animation: ProseMirror-cursor-blink 1.1s steps(2, start) infinite;
+}
+
+@keyframes ProseMirror-cursor-blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+.ProseMirror-focused .ProseMirror-gapcursor {
+  display: block;
 }
 
 /* 选择样式 */
@@ -288,4 +344,3 @@
   color: #6e7781;
   opacity: 0.75;
 }
-

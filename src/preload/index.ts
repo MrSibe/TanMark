@@ -1,5 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import * as path from 'path'
+import { AppSettings } from '../shared/types/settings'
 
 // 自定义 API
 const api = {
@@ -15,6 +17,8 @@ const api = {
   createFile: (dirPath: string, fileName: string) =>
     ipcRenderer.invoke('file:create', dirPath, fileName),
   deleteFile: (targetPath: string) => ipcRenderer.invoke('file:delete', targetPath),
+  renameFile: (oldPath: string, newName: string) =>
+    ipcRenderer.invoke('file:rename', oldPath, newName),
 
   // 目录操作
   readDirectoryTree: (dirPath: string) => ipcRenderer.invoke('directory:readTree', dirPath),
@@ -24,11 +28,13 @@ const api = {
   // 设置 API
   settings: {
     getAll: () => ipcRenderer.invoke('settings:get'),
-    get: (key: string) => ipcRenderer.invoke('settings:get', key),
-    set: (key: string, value: any) => ipcRenderer.invoke('settings:set', key, value),
+    get: (key: keyof AppSettings) => ipcRenderer.invoke('settings:get', key),
+    set: (key: keyof AppSettings, value: AppSettings[keyof AppSettings]) =>
+      ipcRenderer.invoke('settings:set', key, value),
     openFile: () => ipcRenderer.invoke('settings:openFile'),
-    onUpdate: (callback: (settings: any) => void) => {
-      const listener = (_event: any, settings: any) => callback(settings)
+    onUpdate: (callback: (settings: AppSettings) => void): (() => void) => {
+      const listener = (_event: Electron.IpcRendererEvent, settings: AppSettings): void =>
+        callback(settings)
       ipcRenderer.on('settings:updated', listener)
       // 返回清理函数
       return () => {
@@ -43,7 +49,22 @@ const api = {
     getContent: (themeId: string) => ipcRenderer.invoke('theme:getContent', themeId),
     getDefault: () => ipcRenderer.invoke('theme:getDefault'),
     getUserThemesPath: () => ipcRenderer.invoke('theme:getUserThemesPath'),
-    openUserThemesFolder: () => ipcRenderer.invoke('theme:openUserThemesFolder')
+    openUserThemesFolder: () => ipcRenderer.invoke('theme:openUserThemesFolder'),
+    applyTheme: (cssContent: string) => ipcRenderer.invoke('theme:applyTheme', cssContent)
+  },
+
+  // 图片操作
+  saveImage: (currentFilePath: string, imageData: ArrayBuffer, fileName: string) =>
+    ipcRenderer.invoke('image:save', currentFilePath, imageData, fileName),
+
+  // 路径工具（暴露安全的 path 方法）
+  path: {
+    resolve: (...pathSegments: string[]) => path.resolve(...pathSegments),
+    relative: (from: string, to: string) => path.relative(from, to),
+    dirname: (p: string) => path.dirname(p),
+    basename: (p: string, ext?: string) => path.basename(p, ext),
+    join: (...pathSegments: string[]) => path.join(...pathSegments),
+    sep: path.sep
   }
 }
 
@@ -51,6 +72,15 @@ const api = {
 try {
   contextBridge.exposeInMainWorld('electron', electronAPI)
   contextBridge.exposeInMainWorld('api', api)
+  // 单独暴露 path 为全局对象，方便使用
+  contextBridge.exposeInMainWorld('path', {
+    resolve: (...pathSegments: string[]) => path.resolve(...pathSegments),
+    relative: (from: string, to: string) => path.relative(from, to),
+    dirname: (p: string) => path.dirname(p),
+    basename: (p: string, ext?: string) => path.basename(p, ext),
+    join: (...pathSegments: string[]) => path.join(...pathSegments),
+    sep: path.sep
+  })
 } catch (error) {
   console.error('[Preload] Error exposing API:', error)
 }

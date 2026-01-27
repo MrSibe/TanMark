@@ -39,10 +39,7 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
   // 加载所有可用主题
   loadThemes: async () => {
     try {
-      console.log('[Theme] Loading themes...')
       const themes = await window.api.theme.getAll()
-      console.log('[Theme] Loaded themes:', themes)
-
       set({ availableThemes: themes, isLoaded: true })
     } catch (error) {
       console.error('[Theme] Error loading themes:', error)
@@ -64,7 +61,6 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
         if (theme) {
           get().applyTheme(theme.content)
           set({ currentTheme: theme })
-          console.log('[Theme] Loaded theme from settings:', currentThemeId)
           return
         }
       }
@@ -76,7 +72,6 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
         set({ currentTheme: defaultTheme })
         // 保存到设置
         await window.api.settings.set('theme.current', defaultTheme.id)
-        console.log('[Theme] Loaded default theme:', defaultTheme.id)
       }
     } catch (error) {
       console.error('[Theme] Error loading current theme:', error)
@@ -100,8 +95,6 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
 
       // 持久化到配置文件
       await window.api.settings.set('theme.current', themeId)
-
-      console.log('[Theme] Switched to theme:', themeId)
     } catch (error) {
       console.error('[Theme] Error switching theme:', error)
     }
@@ -120,5 +113,8 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
     styleElement.id = 'tanmark-theme'
     styleElement.textContent = cssContent
     document.head.appendChild(styleElement)
+
+    // 更新窗口背景色（防止快速拖动时闪烁白色）
+    window.api.theme.applyTheme(cssContent)
   }
 }))

@@ -5,6 +5,7 @@ interface FileInfo {
   path: string
   name: string
   content: string
+  isImage?: boolean // 新增：标识是否为图片文件
 }
 
 interface DirectoryItem {
@@ -25,6 +26,10 @@ interface API {
     fileName: string
   ) => Promise<{ success: boolean; path?: string; error?: string }>
   deleteFile: (targetPath: string) => Promise<{ success: boolean; error?: string }>
+  renameFile: (
+    oldPath: string,
+    newName: string
+  ) => Promise<{ success: boolean; path?: string; error?: string }>
   readDirectoryTree: (dirPath: string) => Promise<DirectoryItem[]>
   createFolder: (
     dirPath: string,
@@ -34,8 +39,8 @@ interface API {
   // 设置 API
   settings: {
     getAll: () => Promise<AppSettings>
-    get: (key: string) => Promise<any>
-    set: (key: string, value: any) => Promise<boolean>
+    get: (key: keyof AppSettings) => Promise<AppSettings[keyof AppSettings]>
+    set: (key: keyof AppSettings, value: AppSettings[keyof AppSettings]) => Promise<boolean>
     openFile: () => Promise<boolean>
     onUpdate: (callback: (settings: AppSettings) => void) => () => void
   }
@@ -47,6 +52,29 @@ interface API {
     getDefault: () => Promise<ThemeInfo | null>
     getUserThemesPath: () => Promise<string>
     openUserThemesFolder: () => Promise<boolean>
+    applyTheme: (cssContent: string) => Promise<boolean>
+  }
+
+  // 图片操作
+  saveImage: (
+    currentFilePath: string,
+    imageData: ArrayBuffer,
+    fileName: string
+  ) => Promise<{
+    success: boolean
+    relativePath?: string
+    absolutePath?: string
+    error?: string
+  }>
+
+  // 路径工具
+  path: {
+    resolve: (...pathSegments: string[]) => string
+    relative: (from: string, to: string) => string
+    dirname: (p: string) => string
+    basename: (p: string, ext?: string) => string
+    join: (...pathSegments: string[]) => string
+    sep: string
   }
 }
 
@@ -63,5 +91,13 @@ declare global {
   interface Window {
     electron: ElectronAPI
     api: API
+    path: {
+      resolve: (...pathSegments: string[]) => string
+      relative: (from: string, to: string) => string
+      dirname: (p: string) => string
+      basename: (p: string, ext?: string) => string
+      join: (...pathSegments: string[]) => string
+      sep: string
+    }
   }
 }

@@ -1,12 +1,13 @@
 import { useState } from 'react'
+import type { JSX } from 'react'
 import { useFileStore } from '../../stores/useFileStore'
 import { FileTreeItem } from './FileTreeItem'
 import { ContextMenu } from './ContextMenu'
 import { InputDialog } from './InputDialog'
 import { ConfirmDialog } from './ConfirmDialog'
 
-export const FileTree = () => {
-  const { directoryTree, workingDirectory, loadDirectoryTree } = useFileStore()
+export const FileTree = (): JSX.Element => {
+  const { directoryTree, workingDirectory, loadDirectoryTree, currentFile } = useFileStore()
   const [contextMenu, setContextMenu] = useState<{
     x: number
     y: number
@@ -24,18 +25,22 @@ export const FileTree = () => {
     onConfirm: () => void
   } | null>(null)
 
-  const handleContextMenu = (e: React.MouseEvent, targetPath?: string, isDirectory = true) => {
+  const handleContextMenu = (
+    e: React.MouseEvent,
+    targetPath?: string,
+    isDirectory = true
+  ): void => {
     e.preventDefault()
     e.stopPropagation()
     setContextMenu({
       x: e.clientX,
       y: e.clientY,
       targetPath: targetPath || workingDirectory || '',
-      isDirectory,
+      isDirectory
     })
   }
 
-  const handleNewFile = async () => {
+  const handleNewFile = async (): Promise<void> => {
     const targetPath = contextMenu?.targetPath
 
     if (!targetPath) return
@@ -60,11 +65,11 @@ export const FileTree = () => {
           console.error('Error creating file:', error)
           alert('创建文件时发生错误')
         }
-      },
+      }
     })
   }
 
-  const handleNewFolder = async () => {
+  const handleNewFolder = async (): Promise<void> => {
     const targetPath = contextMenu?.targetPath
 
     if (!targetPath) return
@@ -89,11 +94,11 @@ export const FileTree = () => {
           console.error('Error creating folder:', error)
           alert('创建文件夹时发生错误')
         }
-      },
+      }
     })
   }
 
-  const handleDelete = async () => {
+  const handleDelete = async (): Promise<void> => {
     const targetPath = contextMenu?.targetPath
 
     if (!targetPath) return
@@ -121,7 +126,55 @@ export const FileTree = () => {
           console.error('Error deleting:', error)
           alert('删除时发生错误')
         }
-      },
+      }
+    })
+  }
+
+  const handleRename = async (): Promise<void> => {
+    const targetPath = contextMenu?.targetPath
+
+    if (!targetPath) return
+
+    // 获取当前名称
+    const currentName = targetPath.split('/').pop() || targetPath.split('\\').pop() || ''
+    const isDirectory = contextMenu?.isDirectory || false
+
+    setInputDialog({
+      title: '重命名',
+      placeholder: '请输入新名称',
+      onConfirm: async (newName) => {
+        setInputDialog(null)
+
+        try {
+          const result = await window.api.renameFile(targetPath, newName)
+
+          if (result.success) {
+            // 如果重命名的是当前打开的文件，更新当前文件路径
+            if (currentFile?.path === targetPath && result.path) {
+              const { setCurrentFile } = useFileStore.getState()
+              // 读取新文件以更新内容
+              const fileData = await window.api.readFile(result.path)
+              if (fileData) {
+                setCurrentFile({
+                  path: result.path,
+                  name: fileData.name,
+                  content: fileData.content
+                })
+              }
+            }
+
+            // 重新加载目录树
+            if (workingDirectory) {
+              await loadDirectoryTree(workingDirectory)
+            }
+          } else {
+            alert(`重命名失败：${result.error}`)
+          }
+        } catch (error) {
+          console.error('Error renaming:', error)
+          alert('重命名时发生错误')
+        }
+      }
     })
   }
 
@@ -178,6 +231,7 @@ export const FileTree = () => {
             onClose={() => setContextMenu(null)}
             onNewFile={handleNewFile}
             onNewFolder={handleNewFolder}
+            onRename={handleRename}
             onDelete={handleDelete}
           />
         )}

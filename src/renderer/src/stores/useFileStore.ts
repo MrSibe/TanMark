@@ -4,6 +4,7 @@ interface FileInfo {
   path: string
   name: string
   content: string
+  isImage?: boolean // 新增：标识是否为图片文件
 }
 
 interface DirectoryItem {
@@ -42,16 +43,16 @@ export const useFileStore = create<FileState>()((set, get) => ({
   directoryTree: [],
   isModified: false,
 
-  setCurrentFile: (file) => set({ currentFile: file, isModified: false }),
+  setCurrentFile: (file) => {
+    set({ currentFile: file, isModified: false })
+  },
   setWorkingDirectory: (dir) => set({ workingDirectory: dir }),
   setDirectoryTree: (tree) => set({ directoryTree: tree }),
   setModified: (modified) => set({ isModified: modified }),
 
   openFile: async () => {
     try {
-      console.log('Opening file dialog...')
       const file = await window.api.openFile()
-      console.log('Selected file:', file)
       if (file) {
         set({ currentFile: file, isModified: false })
         // 同时更新编辑器内容
@@ -65,9 +66,7 @@ export const useFileStore = create<FileState>()((set, get) => ({
 
   openFolder: async () => {
     try {
-      console.log('Opening vault dialog...')
       const dirPath = await window.api.openFolder()
-      console.log('Selected vault:', dirPath)
       if (dirPath) {
         set({ workingDirectory: dirPath })
         await get().loadDirectoryTree(dirPath)
@@ -81,7 +80,6 @@ export const useFileStore = create<FileState>()((set, get) => ({
     const result = await window.api.saveFile(file.path, content)
     if (result.success) {
       set({ isModified: false })
-      console.log('File saved successfully')
     } else {
       console.error('Failed to save file:', result.error)
     }
@@ -96,11 +94,8 @@ export const useFileStore = create<FileState>()((set, get) => ({
 
   loadDirectoryTree: async (dirPath) => {
     try {
-      console.log('Loading directory tree:', dirPath)
       const tree = await window.api.readDirectoryTree(dirPath)
-      console.log('Directory tree data:', tree)
       set({ directoryTree: tree })
-      console.log('Directory tree updated, total items:', tree.length)
     } catch (error) {
       console.error('Error loading directory tree:', error)
       set({ directoryTree: [] })
@@ -109,17 +104,26 @@ export const useFileStore = create<FileState>()((set, get) => ({
 
   openFileFromTree: async (filePath) => {
     try {
-      console.log('Opening file from tree:', filePath)
       const file = await window.api.readFile(filePath)
-      console.log('Read file:', file)
+
       if (file) {
+        // 检查是否为图片文件
+        if (file.isImage) {
+          // 图片文件：设置 isImage 标识，content 留空
+          set({
+            currentFile: { ...file, content: '' },
+            isModified: false
+          })
+          return
+        }
+
+        // 文本文件：正常加载
         set({ currentFile: file, isModified: false })
-        // 更新编辑器内容
         const { useEditorStore } = await import('./useEditorStore')
         useEditorStore.getState().setContent(file.content)
       }
     } catch (error) {
       console.error('Error opening file from tree:', error)
     }
-  },
+  }
 }))

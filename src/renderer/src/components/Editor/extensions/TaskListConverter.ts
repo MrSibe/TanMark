@@ -1,16 +1,17 @@
 import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
+import { TextSelection } from '@tiptap/pm/state'
 import { Node as ProseMirrorNode } from '@tiptap/pm/model'
 
 export const TaskListConverter = Extension.create({
   name: 'taskListConverter',
 
-  addProseMirrorPlugins() {
+  addProseMirrorPlugins(): Plugin[] {
     return [
       new Plugin({
         key: new PluginKey('taskListConverter'),
         props: {
-          handleTextInput(view, from, to, text) {
+          handleTextInput(view, _from, _to, text) {
             const { state, dispatch } = view
             const { selection, doc, schema } = state
             const { $from } = selection
@@ -47,7 +48,7 @@ export const TaskListConverter = Extension.create({
               const listItemPos = $from.before(-1)
               let currentItemIndex = 0
               let offset = listPos + 1
-              listNode.forEach((child, childOffset, index) => {
+              listNode.forEach((child, _childOffset, index) => {
                 if (offset === listItemPos) {
                   currentItemIndex = index
                 }
@@ -62,7 +63,7 @@ export const TaskListConverter = Extension.create({
 
               // 转换所有列表项为任务项
               const taskItems: ProseMirrorNode[] = []
-              listNode.forEach((child, childOffset, index) => {
+              listNode.forEach((child, _childOffset, index) => {
                 // 如果是当前项，需要删除 [ ] 或 [x] 文本
                 let taskItemContent
                 if (index === currentItemIndex) {
@@ -99,16 +100,16 @@ export const TaskListConverter = Extension.create({
 
               // 使用 TextSelection 确保光标在正确位置
               const $pos = tr.doc.resolve(newPos)
-              tr.setSelection(state.selection.constructor.near($pos))
+              tr.setSelection(TextSelection.near($pos))
 
               dispatch(tr)
               return true
             }
 
             return false
-          },
-        },
-      }),
+          }
+        }
+      })
     ]
-  },
+  }
 })

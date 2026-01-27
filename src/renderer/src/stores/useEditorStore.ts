@@ -26,5 +26,5 @@ export const useEditorStore = create<EditorState>()((set) => ({
 
   updateContent: (content) => {
     set({ content })
-  },
+  }
 }))
