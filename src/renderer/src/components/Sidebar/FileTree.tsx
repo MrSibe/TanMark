@@ -2,18 +2,19 @@ import { useState } from 'react'
 import type { JSX } from 'react'
 import { useFileStore } from '../../stores/useFileStore'
 import { FileTreeItem } from './FileTreeItem'
-import { ContextMenu } from './ContextMenu'
 import { InputDialog } from './InputDialog'
 import { ConfirmDialog } from './ConfirmDialog'
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger
+} from '../ui/context-menu'
+import { FileText, FolderPlus, Edit3, Trash2 } from 'lucide-react'
 
 export const FileTree = (): JSX.Element => {
   const { directoryTree, workingDirectory, loadDirectoryTree, currentFile } = useFileStore()
-  const [contextMenu, setContextMenu] = useState<{
-    x: number
-    y: number
-    targetPath: string
-    isDirectory: boolean
-  } | null>(null)
   const [inputDialog, setInputDialog] = useState<{
     title: string
     placeholder: string
@@ -25,24 +26,7 @@ export const FileTree = (): JSX.Element => {
     onConfirm: () => void
   } | null>(null)
 
-  const handleContextMenu = (
-    e: React.MouseEvent,
-    targetPath?: string,
-    isDirectory = true
-  ): void => {
-    e.preventDefault()
-    e.stopPropagation()
-    setContextMenu({
-      x: e.clientX,
-      y: e.clientY,
-      targetPath: targetPath || workingDirectory || '',
-      isDirectory
-    })
-  }
-
-  const handleNewFile = async (): Promise<void> => {
-    const targetPath = contextMenu?.targetPath
-
+  const handleNewFile = async (targetPath: string): Promise<void> => {
     if (!targetPath) return
 
     setInputDialog({
@@ -69,9 +53,7 @@ export const FileTree = (): JSX.Element => {
     })
   }
 
-  const handleNewFolder = async (): Promise<void> => {
-    const targetPath = contextMenu?.targetPath
-
+  const handleNewFolder = async (targetPath: string): Promise<void> => {
     if (!targetPath) return
 
     setInputDialog({
@@ -98,9 +80,7 @@ export const FileTree = (): JSX.Element => {
     })
   }
 
-  const handleDelete = async (): Promise<void> => {
-    const targetPath = contextMenu?.targetPath
-
+  const handleDelete = async (targetPath: string): Promise<void> => {
     if (!targetPath) return
 
     // 获取文件/文件夹名称
@@ -130,9 +110,7 @@ export const FileTree = (): JSX.Element => {
     })
   }
 
-  const handleRename = async (): Promise<void> => {
-    const targetPath = contextMenu?.targetPath
-
+  const handleRename = async (targetPath: string): Promise<void> => {
     if (!targetPath) return
 
     setInputDialog({
@@ -174,65 +152,66 @@ export const FileTree = (): JSX.Element => {
     })
   }
 
-  if (directoryTree.length === 0) {
+  const renderContextMenu = (
+    targetPath: string,
+    isDirectory: boolean,
+    allowRename: boolean
+  ): JSX.Element => {
+    const canRename = allowRename && Boolean(targetPath)
+    const showDelete = Boolean(targetPath) && targetPath !== workingDirectory
+
     return (
-      <>
-        <div className="file-tree-empty" onContextMenu={handleContextMenu}>
-          仓库为空
-          {contextMenu && (
-            <ContextMenu
-              x={contextMenu.x}
-              y={contextMenu.y}
-              isDirectory={contextMenu.isDirectory}
-              showDelete={contextMenu.targetPath !== workingDirectory}
-              onClose={() => setContextMenu(null)}
-              onNewFile={handleNewFile}
-              onNewFolder={handleNewFolder}
-              onRename={handleRename}
-              onDelete={handleDelete}
-            />
-          )}
-        </div>
-        {inputDialog && (
-          <InputDialog
-            title={inputDialog.title}
-            placeholder={inputDialog.placeholder}
-            onConfirm={inputDialog.onConfirm}
-            onCancel={() => setInputDialog(null)}
-          />
+      <ContextMenuContent>
+        {isDirectory && (
+          <>
+            <ContextMenuItem onSelect={() => handleNewFile(targetPath)}>
+              <FileText size={14} />
+              新建文件
+            </ContextMenuItem>
+            <ContextMenuItem onSelect={() => handleNewFolder(targetPath)}>
+              <FolderPlus size={14} />
+              新建文件夹
+            </ContextMenuItem>
+            <ContextMenuSeparator />
+          </>
         )}
-        {confirmDialog && (
-          <ConfirmDialog
-            title={confirmDialog.title}
-            message={confirmDialog.message}
-            onConfirm={confirmDialog.onConfirm}
-            onCancel={() => setConfirmDialog(null)}
-          />
+        <ContextMenuItem disabled={!canRename} onSelect={() => handleRename(targetPath)}>
+          <Edit3 size={14} />
+          重命名
+        </ContextMenuItem>
+        {showDelete && (
+          <ContextMenuItem variant="destructive" onSelect={() => handleDelete(targetPath)}>
+            <Trash2 size={14} />
+            删除
+          </ContextMenuItem>
         )}
-      </>
+      </ContextMenuContent>
     )
   }
 
   return (
     <>
-      <div className="file-tree custom-scrollbar" onContextMenu={handleContextMenu}>
-        {directoryTree.map((item) => (
-          <FileTreeItem key={item.path} item={item} onContextMenu={handleContextMenu} />
-        ))}
-        {contextMenu && (
-          <ContextMenu
-            x={contextMenu.x}
-            y={contextMenu.y}
-            isDirectory={contextMenu.isDirectory}
-            showDelete={contextMenu.targetPath !== workingDirectory}
-            onClose={() => setContextMenu(null)}
-            onNewFile={handleNewFile}
-            onNewFolder={handleNewFolder}
-            onRename={handleRename}
-            onDelete={handleDelete}
-          />
-        )}
-      </div>
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <div className="file-tree custom-scrollbar">
+            {directoryTree.length === 0 ? (
+              <div className="file-tree-empty">仓库为空</div>
+            ) : (
+              directoryTree.map((item) => (
+                <ContextMenu key={item.path}>
+                  <ContextMenuTrigger asChild>
+                    <div onContextMenu={(event) => event.stopPropagation()}>
+                      <FileTreeItem item={item} />
+                    </div>
+                  </ContextMenuTrigger>
+                  {renderContextMenu(item.path, item.isDirectory, true)}
+                </ContextMenu>
+              ))
+            )}
+          </div>
+        </ContextMenuTrigger>
+        {renderContextMenu(workingDirectory || '', true, false)}
+      </ContextMenu>
       {inputDialog && (
         <InputDialog
           title={inputDialog.title}

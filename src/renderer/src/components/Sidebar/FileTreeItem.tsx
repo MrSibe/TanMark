@@ -14,14 +14,9 @@ interface DirectoryItem {
 interface FileTreeItemProps {
   item: DirectoryItem
   level?: number
-  onContextMenu?: (e: React.MouseEvent, targetPath: string, isDirectory: boolean) => void
 }
 
-export const FileTreeItem = ({
-  item,
-  level = 0,
-  onContextMenu
-}: FileTreeItemProps): JSX.Element => {
+export const FileTreeItem = ({ item, level = 0 }: FileTreeItemProps): JSX.Element => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [displayName, setDisplayName] = useState('')
   const { currentFile, openFileFromTree } = useFileStore()
@@ -32,12 +27,6 @@ export const FileTreeItem = ({
       setIsExpanded(!isExpanded)
     } else {
       openFileFromTree(item.path)
-    }
-  }
-
-  const handleContextMenu = (e: React.MouseEvent): void => {
-    if (onContextMenu) {
-      onContextMenu(e, item.path, item.isDirectory)
     }
   }
 
@@ -86,7 +75,6 @@ export const FileTreeItem = ({
         className={`file-tree-item ${isActive ? 'active' : ''}`}
         style={{ paddingLeft: `${level * 0.5 + 0.5}rem` }}
         onClick={handleClick}
-        onContextMenu={handleContextMenu}
       >
         {item.isDirectory ? (
           <>
@@ -110,12 +98,7 @@ export const FileTreeItem = ({
       {item.isDirectory && isExpanded && item.children && (
         <div className="file-tree-children">
           {item.children.map((child) => (
-            <FileTreeItem
-              key={child.path}
-              item={child}
-              level={level + 1}
-              onContextMenu={onContextMenu}
-            />
+            <FileTreeItem key={child.path} item={child} level={level + 1} />
           ))}
         </div>
       )}

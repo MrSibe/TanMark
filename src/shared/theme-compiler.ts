@@ -288,6 +288,13 @@ export class ThemeCompiler {
     lines.push(`  --resizer-bg: ${ui.resizerBg};`)
     lines.push(`  --resizer-hover-bg: ${ui.resizerHoverBg};`)
     lines.push(`  --empty-state-color: ${ui.emptyStateColor};`)
+    lines.push(`  --outline-font-size: ${ui.outlineFontSize};`)
+    lines.push(`  --outline-list-padding: ${ui.outlineListPadding};`)
+    lines.push(`  --outline-item-padding-y: ${ui.outlineItemPaddingY};`)
+    lines.push(`  --outline-item-padding-x: ${ui.outlineItemPaddingX};`)
+    lines.push(`  --outline-indent-step: ${ui.outlineIndentStep};`)
+    lines.push(`  --outline-empty-padding: ${ui.outlineEmptyPadding};`)
+    lines.push(`  --outline-empty-font-size: ${ui.outlineEmptyFontSize};`)
 
     return lines.join('\n')
   }

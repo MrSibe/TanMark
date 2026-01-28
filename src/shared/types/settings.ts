@@ -19,6 +19,7 @@ export interface AppSettings {
   system: {
     autoSave: boolean
     autoSaveInterval: number // 自动保存间隔（毫秒）
+    sidebarCollapseThreshold: number // 侧栏拖动折叠阈值（像素）
   }
 }
 
@@ -35,6 +36,7 @@ export const defaultSettings: AppSettings = {
   },
   system: {
     autoSave: true,
-    autoSaveInterval: 5000 // 5 秒
+    autoSaveInterval: 5000, // 5 秒
+    sidebarCollapseThreshold: 24
   }
 }

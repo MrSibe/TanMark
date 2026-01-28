@@ -405,7 +405,14 @@ export class ThemeService {
       scrollbarRadius: getNumber('scrollbar-radius', 4),
       resizerBg: variables.get('resizer-bg') || '#d0d0d0',
       resizerHoverBg: variables.get('resizer-hover-bg') || '#b0b0b0',
-      emptyStateColor: variables.get('empty-state-color') || '#999999'
+      emptyStateColor: variables.get('empty-state-color') || '#999999',
+      outlineFontSize: variables.get('outline-font-size') || '0.8125rem',
+      outlineListPadding: variables.get('outline-list-padding') || '0.5rem 0',
+      outlineItemPaddingY: variables.get('outline-item-padding-y') || '0.3rem',
+      outlineItemPaddingX: variables.get('outline-item-padding-x') || '0.5rem',
+      outlineIndentStep: variables.get('outline-indent-step') || '12px',
+      outlineEmptyPadding: variables.get('outline-empty-padding') || '0.75rem',
+      outlineEmptyFontSize: variables.get('outline-empty-font-size') || '0.75rem'
     }
   }
 }

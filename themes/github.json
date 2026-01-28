@@ -100,6 +100,13 @@
     "scrollbarRadius": 4,
     "resizerBg": "#d0d0d0",
     "resizerHoverBg": "#b0b0b0",
-    "emptyStateColor": "#999999"
+    "emptyStateColor": "#999999",
+    "outlineFontSize": "0.8125rem",
+    "outlineListPadding": "0.5rem 0",
+    "outlineItemPaddingY": "0.3rem",
+    "outlineItemPaddingX": "0.5rem",
+    "outlineIndentStep": "12px",
+    "outlineEmptyPadding": "0.75rem 0.75rem",
+    "outlineEmptyFontSize": "0.75rem"
   }
 }

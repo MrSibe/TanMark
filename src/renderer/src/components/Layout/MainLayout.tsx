@@ -7,16 +7,21 @@ import { SettingsWindow } from '../Settings/SettingsWindow'
 import { ImagePreview } from '../preview/ImagePreview'
 import { useSidebarStore } from '../../stores/useSidebarStore'
 import { useFileStore } from '../../stores/useFileStore'
-import { useState, useEffect, useCallback } from 'react'
+import { useSettingsStore } from '../../stores/useSettingsStore'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '../../components/ui/resizable'
 
 export const MainLayout = (): JSX.Element => {
-  const { isOpen, open, width } = useSidebarStore()
+  const { isOpen, open, close, width } = useSidebarStore()
   const { currentFile } = useFileStore()
+  const { settings } = useSettingsStore()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [windowWidth, setWindowWidth] = useState(window.innerWidth)
 
   const minSidebarWidth = 200
+  const collapseDragThreshold = -Math.max(0, settings.system.sidebarCollapseThreshold)
+  const isDraggingRef = useRef(false)
+  const dragStartXRef = useRef(0)
 
   // 监听窗口大小变化
   useEffect(() => {
@@ -39,6 +44,38 @@ export const MainLayout = (): JSX.Element => {
     },
     [minSidebarWidth, windowWidth]
   )
+
+  const handleResizerPointerDown = useCallback((event: React.PointerEvent) => {
+    isDraggingRef.current = true
+    dragStartXRef.current = event.clientX
+  }, [])
+
+  useEffect(() => {
+    const handlePointerMove = (event: PointerEvent) => {
+      if (!isDraggingRef.current || !isOpen) {
+        return
+      }
+
+      const deltaX = event.clientX - dragStartXRef.current
+      if (deltaX <= collapseDragThreshold && width <= minSidebarWidth + 2) {
+        isDraggingRef.current = false
+        close()
+      }
+    }
+
+    const handlePointerUp = () => {
+      isDraggingRef.current = false
+    }
+
+    window.addEventListener('pointermove', handlePointerMove)
+    window.addEventListener('pointerup', handlePointerUp)
+    window.addEventListener('pointercancel', handlePointerUp)
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove)
+      window.removeEventListener('pointerup', handlePointerUp)
+      window.removeEventListener('pointercancel', handlePointerUp)
+    }
+  }, [close, isOpen, minSidebarWidth, width])
 
   return (
     <ResizablePanelGroup
@@ -64,7 +101,7 @@ export const MainLayout = (): JSX.Element => {
           </ResizablePanel>
 
           {/* 可拖动的分隔条 */}
-          <ResizableHandle />
+          <ResizableHandle onPointerDown={handleResizerPointerDown} />
         </>
       )}
 

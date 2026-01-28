@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import type { JSX } from 'react'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog'
+import { Input } from '../ui/input'
+import { Button } from '../ui/button'
 
 interface InputDialogProps {
   title: string
@@ -21,14 +24,7 @@ export const InputDialog = ({
     // 自动聚焦输入框
     inputRef.current?.focus()
 
-    const handleEscape = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') {
-        onCancel()
-      }
-    }
-
-    document.addEventListener('keydown', handleEscape)
-    return (): void => document.removeEventListener('keydown', handleEscape)
+    return (): void => undefined
   }, [onCancel])
 
   const handleSubmit = (e: React.FormEvent): void => {
@@ -39,28 +35,29 @@ export const InputDialog = ({
   }
 
   return (
-    <div className="dialog-overlay">
-      <div className="dialog-content">
-        <h3 className="dialog-title">{title}</h3>
-        <form onSubmit={handleSubmit}>
-          <input
+    <Dialog open onOpenChange={(open) => (!open ? onCancel() : undefined)}>
+      <DialogContent className="sm:max-w-[420px]">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
             ref={inputRef}
             type="text"
-            className="input dialog-input"
             placeholder={placeholder}
             value={value}
             onChange={(e) => setValue(e.target.value)}
           />
-          <div className="dialog-actions">
-            <button type="button" className="btn" onClick={onCancel}>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onCancel}>
               取消
-            </button>
-            <button type="submit" className="btn btn-primary" disabled={!value.trim()}>
+            </Button>
+            <Button type="submit" disabled={!value.trim()}>
               确定
-            </button>
-          </div>
+            </Button>
+          </DialogFooter>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }

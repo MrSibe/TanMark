@@ -383,6 +383,29 @@ export interface UIStyles {
 
   /** 空状态文字颜色 */
   emptyStateColor: string
+
+  /* ==================== 大纲样式 ==================== */
+
+  /** 大纲字号（CSS 值，如：'0.8125rem'） */
+  outlineFontSize: string
+
+  /** 大纲列表内边距（CSS 值，如：'0.5rem 0'） */
+  outlineListPadding: string
+
+  /** 大纲项纵向内边距（CSS 值，如：'0.3rem'） */
+  outlineItemPaddingY: string
+
+  /** 大纲项横向内边距（CSS 值，如：'0.5rem'） */
+  outlineItemPaddingX: string
+
+  /** 大纲层级缩进步进（CSS 值，如：'12px'） */
+  outlineIndentStep: string
+
+  /** 大纲空状态内边距（CSS 值，如：'0.75rem'） */
+  outlineEmptyPadding: string
+
+  /** 大纲空状态字号（CSS 值，如：'0.75rem'） */
+  outlineEmptyFontSize: string
 }
 
 /**
