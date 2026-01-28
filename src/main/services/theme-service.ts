@@ -5,7 +5,7 @@
  */
 
 import { ThemeConfig } from '@shared/types/theme'
-import { ThemeCompiler } from '../ipc/theme-compiler'
+import { ThemeCompiler } from '@shared/theme-compiler'
 import fs from 'fs/promises'
 import path from 'path'
 
@@ -43,11 +43,7 @@ export class ThemeService {
     themePath: string
   ): Promise<{ config: ThemeConfig; css: string; format: 'json' }> {
     try {
-      const content = await fs.readFile(themePath, 'utf-8')
-      const config = JSON.parse(content) as ThemeConfig
-
-      // 验证必需字段
-      this.validateThemeConfig(config)
+      const config = await this.readJSONThemeConfig(themePath)
 
       // 处理主题继承
       const resolvedConfig = config.extends
@@ -119,22 +115,24 @@ export class ThemeService {
       throw new Error(`Circular theme inheritance detected: ${config.meta.id}`)
     }
 
+    visited.add(config.meta.id)
+
     if (!config.extends) {
+      visited.delete(config.meta.id)
       return config
     }
 
     // 加载父主题
     const parentPath = this.resolveParentPath(config.extends, themePath)
-    const { config: parentConfig } = await this.loadJSONTheme(parentPath)
-
-    // 标记已访问
-    visited.add(config.meta.id)
-
-    // 递归解析父主题的继承
-    const resolvedParent = await this.resolveInheritance(parentConfig, parentPath, visited)
+    const parentConfig = await this.readJSONThemeConfig(parentPath)
+    const resolvedParent = parentConfig.extends
+      ? await this.resolveInheritance(parentConfig, parentPath, visited)
+      : parentConfig
 
     // 合并主题
-    return this.mergeThemes(resolvedParent, config)
+    const merged = this.mergeThemes(resolvedParent, config)
+    visited.delete(config.meta.id)
+    return merged
   }
 
   /**
@@ -209,6 +207,16 @@ export class ThemeService {
     if (!config.ui) {
       throw new Error('Missing required field: ui')
     }
+  }
+
+  /**
+   * 读取并验证 JSON 主题配置（不处理继承）
+   */
+  private async readJSONThemeConfig(themePath: string): Promise<ThemeConfig> {
+    const content = await fs.readFile(themePath, 'utf-8')
+    const config = JSON.parse(content) as ThemeConfig
+    this.validateThemeConfig(config)
+    return config
   }
 
   /**

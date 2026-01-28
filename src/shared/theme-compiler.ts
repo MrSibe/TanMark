@@ -26,7 +26,8 @@ export class ThemeCompiler {
     cssParts.push(this.generateHeader(config))
 
     // 生成 CSS 变量
-    cssParts.push(':root {')
+    cssParts.push(':root, .dark {')
+    cssParts.push(this.compileShadcnVars(config))
     cssParts.push(this.compileColors(config.colors))
     cssParts.push(this.compileTypography(config.typography))
     cssParts.push(this.compileUIStyles(config.ui))
@@ -73,6 +74,9 @@ export class ThemeCompiler {
     lines.push(` * @theme-author: ${meta.author}`)
     lines.push(` * @theme-version: ${meta.version}`)
     lines.push(` * @theme-type: ${meta.type}`)
+    if (meta.previewColor) {
+      lines.push(` * @theme-color: ${meta.previewColor}`)
+    }
     lines.push(` */`)
 
     return lines.join('\n')
@@ -120,6 +124,47 @@ export class ThemeCompiler {
 
     lines.push('  /* ==================== 编辑器颜色 ==================== */')
     lines.push(...this.compileEditorColors(colors.editor))
+
+    return lines.join('\n')
+  }
+
+  /**
+   * 同步 shadcn/ui 基础变量，避免暗色主题下出现浅色边框/文字
+   */
+  private compileShadcnVars(config: ThemeConfig): string {
+    const colors = config.colors
+    const isDarkTheme = config.meta?.type === 'dark'
+    const lines: string[] = []
+
+    lines.push(`  color-scheme: ${isDarkTheme ? 'dark' : 'light'};`)
+    lines.push(`  --background: ${colors.bg};`)
+    lines.push(`  --foreground: ${colors.fg};`)
+    lines.push(`  --card: ${colors.bgSecondary};`)
+    lines.push(`  --card-foreground: ${colors.fg};`)
+    lines.push(`  --popover: ${colors.bgSecondary};`)
+    lines.push(`  --popover-foreground: ${colors.fg};`)
+    lines.push(`  --primary: ${colors.accent};`)
+    lines.push(`  --primary-foreground: ${colors.fgOnDark};`)
+    lines.push(`  --secondary: ${colors.bgSecondary};`)
+    lines.push(`  --secondary-foreground: ${colors.fg};`)
+    lines.push(`  --muted: ${colors.bgSecondary};`)
+    lines.push(`  --muted-foreground: ${colors.fgMuted};`)
+    lines.push(`  --accent: ${colors.hover};`)
+    lines.push(`  --accent-foreground: ${colors.fg};`)
+    lines.push(`  --destructive: ${colors.error};`)
+    lines.push(`  --destructive-foreground: ${colors.fgOnDark};`)
+    lines.push(`  --border: ${colors.border};`)
+    lines.push(`  --input: ${colors.borderLight};`)
+    lines.push(`  --ring: ${colors.focus};`)
+    lines.push(`  --sidebar: ${colors.sidebarBg};`)
+    lines.push(`  --sidebar-foreground: ${colors.fg};`)
+    lines.push(`  --sidebar-primary: ${colors.accent};`)
+    lines.push(`  --sidebar-primary-foreground: ${colors.fgOnDark};`)
+    lines.push(`  --sidebar-accent: ${colors.hover};`)
+    lines.push(`  --sidebar-accent-foreground: ${colors.fg};`)
+    lines.push(`  --sidebar-border: ${colors.border};`)
+    lines.push(`  --sidebar-ring: ${colors.focus};`)
+    lines.push('')
 
     return lines.join('\n')
   }
@@ -176,31 +221,25 @@ export class ThemeCompiler {
     lines.push('')
 
     lines.push('  /* 编辑器增强样式 */')
-    lines.push('  /* 文字选中 */')
     lines.push(`  --selection-bg: ${editor.selectionBg};`)
     lines.push(`  --selection-color: ${editor.selectionColor};`)
-    lines.push('')
-
-    lines.push('  /* 任务复选框状态 */')
     lines.push(`  --task-checkbox-hover-bg: ${editor.taskCheckboxHoverBg};`)
     lines.push(`  --task-checkbox-hover-border: ${editor.taskCheckboxHoverBorder};`)
     lines.push(`  --task-completed-text: ${editor.taskCompletedText};`)
-    lines.push('')
-
-    lines.push('  /* 代码块增强 */')
     lines.push(`  --codeblock-border: ${editor.codeblockBorder};`)
     lines.push(`  --codeblock-shadow: ${editor.codeblockShadow};`)
+    lines.push('')
 
-    return lines.map((line) => '  ' + line).join('\n')
+    return lines.join('\n')
   }
 
   /**
-   * 编译字体排版系统
+   * 编译字体排版
    */
   private compileTypography(typography: TypographySystem): string {
     const lines: string[] = []
 
-    lines.push('  /* ==================== 编辑器字体 ==================== */')
+    lines.push('  /* ==================== 编辑器排版 ==================== */')
     lines.push(`  --editor-font-size: ${typography.fontSize}px;`)
     lines.push(`  --editor-line-height: ${typography.lineHeight};`)
     lines.push(`  --editor-font-family: ${typography.fontFamily};`)
@@ -209,18 +248,12 @@ export class ThemeCompiler {
       `  --editor-heading-font-family: ${typography.headingFontFamily || typography.fontFamily};`
     )
     lines.push(`  --editor-heading-font-weight: ${typography.headingFontWeight};`)
-    lines.push('')
-
-    lines.push('  /* ==================== 标题字号 ==================== */')
     lines.push(`  --editor-h1-size: ${typography.h1Size}rem;`)
     lines.push(`  --editor-h2-size: ${typography.h2Size}rem;`)
     lines.push(`  --editor-h3-size: ${typography.h3Size}rem;`)
     lines.push(`  --editor-h4-size: ${typography.h4Size}rem;`)
     lines.push(`  --editor-h5-size: ${typography.h5Size}rem;`)
     lines.push(`  --editor-h6-size: ${typography.h6Size}rem;`)
-    lines.push('')
-
-    lines.push('  /* ==================== 编辑器布局 ==================== */')
     lines.push(`  --editor-max-width: ${typography.maxWidth}px;`)
     lines.push(`  --editor-padding: ${typography.padding}px;`)
 
@@ -233,52 +266,29 @@ export class ThemeCompiler {
   private compileUIStyles(ui: UIStyles): string {
     const lines: string[] = []
 
-    lines.push('  /* ==================== 圆角 ==================== */')
+    lines.push('  /* ==================== UI 样式 ==================== */')
     lines.push(`  --border-radius-sm: ${ui.borderRadiusSm}px;`)
     lines.push(`  --border-radius-md: ${ui.borderRadiusMd}px;`)
     lines.push(`  --border-radius-lg: ${ui.borderRadiusLg}px;`)
     lines.push(`  --border-radius: ${ui.borderRadius}px;`)
-    lines.push('')
-
-    lines.push('  /* ==================== 间距 ==================== */')
     lines.push(`  --button-padding: ${ui.buttonPadding};`)
     lines.push(`  --input-padding: ${ui.inputPadding};`)
-    lines.push('')
-
-    lines.push('  /* ==================== 过渡动画 ==================== */')
     lines.push(`  --transition-fast: ${ui.transitionFast};`)
     lines.push(`  --transition-normal: ${ui.transitionNormal};`)
     lines.push(`  --transition-slow: ${ui.transitionSlow};`)
     lines.push(`  --transition-speed: ${ui.transitionSpeed};`)
-    lines.push('')
-
-    lines.push('  /* ==================== 阴影 ==================== */')
     lines.push(`  --shadow-sm: ${ui.shadowSm};`)
     lines.push(`  --shadow-md: ${ui.shadowMd};`)
     lines.push(`  --shadow-lg: ${ui.shadowLg};`)
-    lines.push('')
-
-    lines.push('  /* ==================== 滚动条 ==================== */')
     lines.push(`  --scrollbar-width: ${ui.scrollbarWidth}px;`)
     lines.push(`  --scrollbar-track: ${ui.scrollbarTrack};`)
     lines.push(`  --scrollbar-thumb: ${ui.scrollbarThumb};`)
     lines.push(`  --scrollbar-thumb-hover: ${ui.scrollbarThumbHover};`)
     lines.push(`  --scrollbar-radius: ${ui.scrollbarRadius}px;`)
-    lines.push('')
-
-    lines.push('  /* ==================== 特殊元素 ==================== */')
-    lines.push('  /* Resizer */')
     lines.push(`  --resizer-bg: ${ui.resizerBg};`)
     lines.push(`  --resizer-hover-bg: ${ui.resizerHoverBg};`)
-    lines.push('')
-    lines.push('  /* 空状态 */')
     lines.push(`  --empty-state-color: ${ui.emptyStateColor};`)
 
     return lines.join('\n')
   }
 }
-
-/**
- * 单例实例
- */
-export const themeCompiler = new ThemeCompiler()

@@ -33,6 +33,7 @@ interface FileState {
   openFolder: () => Promise<void>
   saveFile: (file: FileInfo, content: string) => Promise<void>
   saveFileAs: (content: string) => Promise<void>
+  createNewFile: () => Promise<void>
   loadDirectoryTree: (dirPath: string) => Promise<void>
   openFileFromTree: (filePath: string) => Promise<void>
 }
@@ -77,9 +78,14 @@ export const useFileStore = create<FileState>()((set, get) => ({
   },
 
   saveFile: async (file, content) => {
+    if (!file.path) {
+      await get().saveFileAs(content)
+      return
+    }
+
     const result = await window.api.saveFile(file.path, content)
     if (result.success) {
-      set({ isModified: false })
+      set({ isModified: false, currentFile: { ...file, content } })
     } else {
       console.error('Failed to save file:', result.error)
     }
@@ -90,6 +96,19 @@ export const useFileStore = create<FileState>()((set, get) => ({
     if (file) {
       set({ currentFile: file, isModified: false })
     }
+  },
+
+  createNewFile: async () => {
+    set({
+      currentFile: {
+        path: '',
+        name: '未命名.md',
+        content: ''
+      },
+      isModified: false
+    })
+    const { useEditorStore } = await import('./useEditorStore')
+    useEditorStore.getState().setContent('')
   },
 
   loadDirectoryTree: async (dirPath) => {

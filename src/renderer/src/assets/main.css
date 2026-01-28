@@ -198,6 +198,7 @@
 
 .titlebar-left {
   -webkit-app-region: drag;
+  background: var(--color-bg);
 }
 
 .titlebar-right {
@@ -206,6 +207,8 @@
   justify-content: center;
   position: relative;
   -webkit-app-region: drag;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .editor-wrapper {

@@ -222,6 +222,16 @@
   color: var(--selection-color);
 }
 
+.tanmark-editor ::selection {
+  background: var(--selection-bg);
+  color: var(--selection-color);
+}
+
+.tanmark-editor ::-moz-selection {
+  background: var(--selection-bg);
+  color: var(--selection-color);
+}
+
 /* 粗体和斜体 */
 .tanmark-editor strong {
   font-weight: 600;

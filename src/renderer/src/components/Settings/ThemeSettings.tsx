@@ -1,8 +1,14 @@
 import { useThemeStore } from '../../stores/useThemeStore'
-import { Check, FolderOpen } from 'lucide-react'
+import { FolderOpen } from 'lucide-react'
 import { Button } from '../ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select'
 import type { JSX } from 'react'
-import { cn } from '../../lib/utils'
 
 export const ThemeSettings = (): JSX.Element => {
   const { currentTheme, availableThemes, switchTheme } = useThemeStore()
@@ -17,56 +23,96 @@ export const ThemeSettings = (): JSX.Element => {
 
   return (
     <div className="space-y-6">
-      {/* 主题列表 */}
-      <div>
-        <div className="grid grid-cols-1 gap-3">
-          {availableThemes.map((theme) => (
-            <button
-              key={theme.id}
-              onClick={() => switchTheme(theme.id)}
-              className={cn(
-                'group relative flex items-center justify-between rounded-lg border p-4 text-left transition-all',
-                currentTheme?.id === theme.id
-                  ? 'border-[var(--color-accent)] bg-[var(--color-bg-secondary)]'
-                  : 'border-[var(--color-border)] hover:bg-[var(--color-hover)]'
-              )}
-              style={{
-                borderRadius: 'var(--border-radius-md)'
-              }}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className="h-10 w-10 rounded-md border"
-                  style={{
-                    backgroundColor: theme.previewColor || '#4a9eff',
-                    borderColor:
-                      currentTheme?.id === theme.id ? 'currentColor' : 'var(--color-border)',
-                    borderRadius: 'var(--border-radius-sm)'
-                  }}
-                />
-                <div>
-                  <div className="font-medium text-[var(--color-fg)]">{theme.name}</div>
-                  <div className="text-sm text-[var(--color-fg-secondary)]">
-                    {theme.source === 'builtin' ? '内置主题' : '用户主题'}
+      {/* 主题选择下拉框 */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-[var(--color-fg)]">
+          选择主题
+        </label>
+        <Select
+          value={currentTheme?.id || ''}
+          onValueChange={(value) => switchTheme(value)}
+        >
+          <SelectTrigger
+            className="w-full"
+            style={{
+              backgroundColor: 'var(--color-bg-secondary)',
+              borderColor: 'var(--color-border)',
+              borderRadius: 'var(--border-radius-md)'
+            }}
+          >
+            <SelectValue placeholder="选择主题..." />
+          </SelectTrigger>
+          <SelectContent
+            style={{
+              backgroundColor: 'var(--color-bg-secondary)',
+              borderColor: 'var(--color-border)',
+              borderRadius: 'var(--border-radius-md)'
+            }}
+          >
+            {availableThemes.map((theme) => (
+              <SelectItem
+                key={theme.id}
+                value={theme.id}
+                style={{
+                  color: 'var(--color-fg)',
+                  borderRadius: 'var(--border-radius-sm)'
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <div
+                    className="h-4 w-4 rounded-sm border"
+                    style={{
+                      backgroundColor: theme.previewColor || '#4a9eff',
+                      borderColor: 'var(--color-border)'
+                    }}
+                  />
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{theme.name}</span>
+                    <span className="text-xs text-[var(--color-fg-muted)]">
+                      {theme.source === 'builtin' ? '内置' : '用户'}
+                    </span>
                   </div>
                 </div>
-              </div>
-              {currentTheme?.id === theme.id && (
-                <div
-                  className="flex h-6 w-6 items-center justify-center rounded-full"
-                  style={{
-                    backgroundColor: 'var(--color-accent)',
-                    color: 'var(--color-fg-on-dark)',
-                    borderRadius: 'var(--border-radius-md)'
-                  }}
-                >
-                  <Check className="h-4 w-4" />
-                </div>
-              )}
-            </button>
-          ))}
-        </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
+
+      {/* 当前主题信息 */}
+      {currentTheme && (
+        <div
+          className="rounded-lg border p-4"
+          style={{
+            backgroundColor: 'var(--color-bg-secondary)',
+            borderColor: 'var(--color-border)',
+            borderRadius: 'var(--border-radius-md)'
+          }}
+        >
+          <h3 className="text-sm font-semibold text-[var(--color-fg)] mb-2">
+            当前主题
+          </h3>
+          <div className="space-y-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-[var(--color-fg-secondary)]">名称：</span>
+              <span className="text-[var(--color-fg)]">{currentTheme.name}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[var(--color-fg-secondary)]">版本：</span>
+              <span className="text-[var(--color-fg)]">{currentTheme.config?.meta.version || '-'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[var(--color-fg-secondary)]">作者：</span>
+              <span className="text-[var(--color-fg)]">{currentTheme.config?.meta.author || '-'}</span>
+            </div>
+            {currentTheme.config?.meta.description && (
+              <div className="pt-2">
+                <span className="text-[var(--color-fg-secondary)]">{currentTheme.config.meta.description}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* 操作按钮 */}
       <div className="space-y-3 pt-4" style={{ borderTop: '1px solid var(--color-divider)' }}>
@@ -79,8 +125,7 @@ export const ThemeSettings = (): JSX.Element => {
           打开用户主题文件夹
         </Button>
         <p className="text-xs text-[var(--color-fg-secondary)]">
-          提示：你可以将自定义主题文件（.json）放入用户主题文件夹中。参考 template.json
-          创建你自己的主题。
+          💡 提示：将自定义主题 JSON 文件放入用户主题文件夹即可。参考 template.json 创建你自己的主题。
         </p>
       </div>
     </div>

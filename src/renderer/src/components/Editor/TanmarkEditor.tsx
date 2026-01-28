@@ -24,7 +24,7 @@ import type { JSX } from 'react'
 
 export const TanmarkEditor = (): JSX.Element => {
   const { content, setContent, setEditor } = useEditorStore()
-  const { currentFile, saveFile, setModified } = useFileStore()
+  const { currentFile, saveFile, saveFileAs, setModified } = useFileStore()
 
   /**
    * 处理图片上传并插入到编辑器
@@ -217,14 +217,18 @@ export const TanmarkEditor = (): JSX.Element => {
         if (editor && currentFile) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const markdown = (editor.storage as any).markdown.getMarkdown()
-          saveFile(currentFile, markdown)
+          if (currentFile.path) {
+            saveFile(currentFile, markdown)
+          } else {
+            saveFileAs(markdown)
+          }
         }
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return (): void => window.removeEventListener('keydown', handleKeyDown)
-  }, [editor, currentFile, saveFile])
+  }, [editor, currentFile, saveFile, saveFileAs])
 
   // 当打开新文件时，加载内容
   useEffect((): void => {

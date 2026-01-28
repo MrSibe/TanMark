@@ -1,6 +1,7 @@
 // Tanmark 主题状态管理 - 支持 JSON 和 CSS 双格式
 import { create } from 'zustand'
 import { ThemeInfo, ThemeConfig } from '@shared/types/theme'
+import { ThemeCompiler } from '@shared/theme-compiler'
 
 interface ThemeState {
   // 当前激活的主题
@@ -225,106 +226,8 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
 
   // 编译主题为 CSS
   compileThemeToCSS: (config: ThemeConfig) => {
-    // 简化版本的编译器（渲染进程使用）
-    const lines: string[] = []
-
-    lines.push(':root {')
-
-    // 颜色
-    const colors = config.colors
-    lines.push(`  --color-bg: ${colors.bg};`)
-    lines.push(`  --color-bg-secondary: ${colors.bgSecondary};`)
-    lines.push(`  --color-sidebar-bg: ${colors.sidebarBg};`)
-    lines.push(`  --color-fg: ${colors.fg};`)
-    lines.push(`  --color-fg-secondary: ${colors.fgSecondary};`)
-    lines.push(`  --color-fg-muted: ${colors.fgMuted};`)
-    lines.push(`  --color-fg-on-dark: ${colors.fgOnDark};`)
-    lines.push(`  --color-border: ${colors.border};`)
-    lines.push(`  --color-border-light: ${colors.borderLight};`)
-    lines.push(`  --color-divider: ${colors.divider};`)
-    lines.push(`  --color-hover: ${colors.hover};`)
-    lines.push(`  --color-active: ${colors.active};`)
-    lines.push(`  --color-focus: ${colors.focus};`)
-    lines.push(`  --color-accent: ${colors.accent};`)
-    lines.push(`  --color-accent-hover: ${colors.accentHover};`)
-    lines.push(`  --color-success: ${colors.success};`)
-    lines.push(`  --color-warning: ${colors.warning};`)
-    lines.push(`  --color-error: ${colors.error};`)
-    lines.push(`  --color-info: ${colors.info};`)
-
-    // 编辑器颜色
-    const editor = colors.editor
-    lines.push(`  --editor-text-color: ${editor.text};`)
-    lines.push(`  --editor-heading-color: ${editor.heading};`)
-    lines.push(`  --editor-h1-color: ${editor.h1 || editor.heading};`)
-    lines.push(`  --editor-h2-color: ${editor.h2 || editor.heading};`)
-    lines.push(`  --editor-h3-color: ${editor.h3 || editor.heading};`)
-    lines.push(`  --editor-link-color: ${editor.link};`)
-    lines.push(`  --editor-link-hover-color: ${editor.linkHover};`)
-    lines.push(`  --editor-code-bg: ${editor.codeBg};`)
-    lines.push(`  --editor-code-color: ${editor.codeColor};`)
-    lines.push(`  --editor-code-border: ${editor.codeBorder};`)
-    lines.push(`  --editor-codeblock-bg: ${editor.codeblockBg};`)
-    lines.push(`  --editor-codeblock-text: ${editor.codeblockText};`)
-    lines.push(`  --editor-blockquote-border: ${editor.blockquoteBorder};`)
-    lines.push(`  --editor-blockquote-bg: ${editor.blockquoteBg};`)
-    lines.push(`  --editor-blockquote-text: ${editor.blockquoteText};`)
-    lines.push(`  --editor-table-border: ${editor.tableBorder};`)
-    lines.push(`  --editor-table-header-bg: ${editor.tableHeaderBg};`)
-    lines.push(`  --editor-table-header-text: ${editor.tableHeaderText};`)
-    lines.push(`  --editor-table-row-even-bg: ${editor.tableRowEvenBg};`)
-    lines.push(`  --editor-table-row-hover-bg: ${editor.tableRowHoverBg};`)
-    lines.push(`  --editor-hr-color: ${editor.hrColor};`)
-    lines.push(`  --editor-list-marker-color: ${editor.listMarkerColor};`)
-    lines.push(`  --editor-task-checkbox-border: ${editor.taskCheckboxBorder};`)
-    lines.push(`  --editor-task-checkbox-checked: ${editor.taskCheckboxChecked};`)
-
-    // 字体排版
-    const typography = config.typography
-    lines.push(`  --editor-font-size: ${typography.fontSize}px;`)
-    lines.push(`  --editor-line-height: ${typography.lineHeight};`)
-    lines.push(`  --editor-font-family: ${typography.fontFamily};`)
-    lines.push(`  --editor-code-font-family: ${typography.codeFontFamily};`)
-    lines.push(
-      `  --editor-heading-font-family: ${typography.headingFontFamily || typography.fontFamily};`
-    )
-    lines.push(`  --editor-heading-font-weight: ${typography.headingFontWeight};`)
-    lines.push(`  --editor-h1-size: ${typography.h1Size}rem;`)
-    lines.push(`  --editor-h2-size: ${typography.h2Size}rem;`)
-    lines.push(`  --editor-h3-size: ${typography.h3Size}rem;`)
-    lines.push(`  --editor-h4-size: ${typography.h4Size}rem;`)
-    lines.push(`  --editor-h5-size: ${typography.h5Size}rem;`)
-    lines.push(`  --editor-h6-size: ${typography.h6Size}rem;`)
-    lines.push(`  --editor-max-width: ${typography.maxWidth}px;`)
-    lines.push(`  --editor-padding: ${typography.padding}px;`)
-
-    // UI 样式
-    const ui = config.ui
-    lines.push(`  --border-radius-sm: ${ui.borderRadiusSm}px;`)
-    lines.push(`  --border-radius-md: ${ui.borderRadiusMd}px;`)
-    lines.push(`  --border-radius-lg: ${ui.borderRadiusLg}px;`)
-    lines.push(`  --button-padding: ${ui.buttonPadding};`)
-    lines.push(`  --input-padding: ${ui.inputPadding};`)
-    lines.push(`  --transition-fast: ${ui.transitionFast};`)
-    lines.push(`  --transition-normal: ${ui.transitionNormal};`)
-    lines.push(`  --transition-slow: ${ui.transitionSlow};`)
-    lines.push(`  --shadow-sm: ${ui.shadowSm};`)
-    lines.push(`  --shadow-md: ${ui.shadowMd};`)
-    lines.push(`  --shadow-lg: ${ui.shadowLg};`)
-    lines.push(`  --scrollbar-width: ${ui.scrollbarWidth}px;`)
-    lines.push(`  --scrollbar-track: ${ui.scrollbarTrack};`)
-    lines.push(`  --scrollbar-thumb: ${ui.scrollbarThumb};`)
-    lines.push(`  --scrollbar-thumb-hover: ${ui.scrollbarThumbHover};`)
-    lines.push(`  --scrollbar-radius: ${ui.scrollbarRadius}px;`)
-
-    lines.push('}')
-
-    // 自定义 CSS
-    if (config.customCSS) {
-      lines.push(config.customCSS)
-    }
-
-    return lines.join('\n')
+    const compiler = new ThemeCompiler()
+    return compiler.compileToCSS(config)
   },
 
   // 验证主题配置

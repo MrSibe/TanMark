@@ -15,8 +15,7 @@ interface EditorState {
 
 export const useEditorStore = create<EditorState>()((set) => ({
   editor: null,
-  content:
-    '# Welcome to TanMark\n\n开始编辑你的 Markdown 文档...\n\n在中文句子中使用**加粗**和*斜体*无需空格！',
+  content: '',
 
   setEditor: (editor) => set({ editor }),
 

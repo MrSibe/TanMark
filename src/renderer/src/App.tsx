@@ -1,6 +1,7 @@
 import { MainLayout } from './components/Layout/MainLayout'
 import { useTheme } from './hooks/useTheme'
 import { useSettingsStore } from './stores/useSettingsStore'
+import { useFileStore } from './stores/useFileStore'
 import { useEffect } from 'react'
 
 function App(): React.JSX.Element {
@@ -9,10 +10,17 @@ function App(): React.JSX.Element {
 
   // 加载设置
   const { loadSettings } = useSettingsStore()
+  const { currentFile, createNewFile } = useFileStore()
 
   useEffect(() => {
     loadSettings()
   }, [loadSettings])
+
+  useEffect(() => {
+    if (!currentFile) {
+      createNewFile()
+    }
+  }, [currentFile, createNewFile])
 
   return <MainLayout />
 }

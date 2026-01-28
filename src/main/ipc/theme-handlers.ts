@@ -4,6 +4,7 @@ import fs from 'fs/promises'
 import path from 'path'
 import { ThemeService } from '../services/theme-service'
 import { ThemeInfo } from '@shared/types/theme'
+import { ThemeCompiler } from '@shared/theme-compiler'
 
 // 创建主题服务实例
 const themeService = new ThemeService()
@@ -90,11 +91,6 @@ async function scanThemesFromDirectory(
         continue
       }
 
-      // 跳过模板文件
-      if (file === 'template.json' || file === 'template.css') {
-        continue
-      }
-
       const filePath = path.join(dir, file)
       const themeId = path.basename(file, ext)
 
@@ -177,14 +173,15 @@ async function ensureUserThemesDirectory(): Promise<void> {
       await fs.mkdir(userThemesDir, { recursive: true })
 
       // 复制模板文件到用户主题文件夹
-      const builtInTemplateSource = path.join(getBuiltInThemesDirectory(), 'template.css')
-      const userTemplateDest = path.join(userThemesDir, 'template.css')
+      const builtInTemplateSource = path.join(getBuiltInThemesDirectory(), 'template.json')
+      const userTemplateDest = path.join(userThemesDir, 'template.json')
 
       try {
         const templateContent = await fs.readFile(builtInTemplateSource, 'utf-8')
         await fs.writeFile(userTemplateDest, templateContent, 'utf-8')
+        console.log('[Theme] template.json copied to user themes directory')
       } catch (error) {
-        console.error(`[Theme] Error copying template.css:`, error)
+        console.error(`[Theme] Error copying template.json:`, error)
       }
     } catch (error) {
       console.error(`[Theme] Error creating user themes directory:`, error)
@@ -295,8 +292,7 @@ export function registerThemeHandlers(): void {
   ipcMain.handle('theme:validate', async (_, config: any) => {
     try {
       // 尝试编译主题来验证
-      const compiler = await import('../ipc/theme-compiler')
-      const themeCompiler = new compiler.ThemeCompiler()
+      const themeCompiler = new ThemeCompiler()
       const css = themeCompiler.compileToCSS(config)
 
       // 如果编译成功，说明配置有效
