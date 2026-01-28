@@ -1,5 +1,6 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import { AppSettings } from '../shared/types/settings'
+import { ThemeInfo, ThemeConfig } from '../shared/types/theme'
 
 interface FileInfo {
   path: string
@@ -45,7 +46,7 @@ interface API {
     onUpdate: (callback: (settings: AppSettings) => void) => () => void
   }
 
-  // 主题 API
+  // 主题 API（扩展支持 JSON）
   theme: {
     getAll: () => Promise<ThemeInfo[]>
     getContent: (themeId: string) => Promise<string | null>
@@ -53,6 +54,13 @@ interface API {
     getUserThemesPath: () => Promise<string>
     openUserThemesFolder: () => Promise<boolean>
     applyTheme: (cssContent: string) => Promise<boolean>
+    // 新增：JSON 主题支持
+    getConfig: (themeId: string) => Promise<ThemeConfig | null>
+    saveJSON: (
+      themeId: string,
+      config: ThemeConfig
+    ) => Promise<{ success: boolean; path?: string; error?: string }>
+    validate: (config: ThemeConfig) => Promise<{ valid: boolean; error?: string; css?: string }>
   }
 
   // 图片操作
@@ -76,15 +84,6 @@ interface API {
     join: (...pathSegments: string[]) => string
     sep: string
   }
-}
-
-interface ThemeInfo {
-  id: string
-  name: string
-  path: string
-  content: string
-  isDefault: boolean
-  source: 'builtin' | 'user'
 }
 
 declare global {

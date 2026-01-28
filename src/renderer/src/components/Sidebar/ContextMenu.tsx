@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import type { JSX } from 'react'
 import { FileText, FolderPlus, Trash2, Edit3 } from 'lucide-react'
 
 interface ContextMenuProps {
@@ -26,7 +27,7 @@ export const ContextMenu = ({
 }: ContextMenuProps): JSX.Element => {
   const menuRef = useRef<HTMLDivElement>(null)
 
-  useEffect((): (() => void) => {
+  useEffect(() => {
     const handleClickOutside = (e: MouseEvent): void => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         onClose()

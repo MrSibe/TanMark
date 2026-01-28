@@ -135,10 +135,6 @@ export const FileTree = (): JSX.Element => {
 
     if (!targetPath) return
 
-    // 获取当前名称
-    const currentName = targetPath.split('/').pop() || targetPath.split('\\').pop() || ''
-    const isDirectory = contextMenu?.isDirectory || false
-
     setInputDialog({
       title: '重命名',
       placeholder: '请输入新名称',
@@ -192,6 +188,7 @@ export const FileTree = (): JSX.Element => {
               onClose={() => setContextMenu(null)}
               onNewFile={handleNewFile}
               onNewFolder={handleNewFolder}
+              onRename={handleRename}
               onDelete={handleDelete}
             />
           )}

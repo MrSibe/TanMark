@@ -15,7 +15,7 @@ export const ImagePreview = ({ src, fileName }: ImagePreviewProps): JSX.Element 
   const containerRef = useRef<HTMLDivElement>(null)
 
   // 计算初始缩放比例，使图片适应容器
-  useEffect((): (() => void) => {
+  useEffect(() => {
     const img = new Image()
     img.src = src
 

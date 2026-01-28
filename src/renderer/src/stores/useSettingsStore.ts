@@ -2,18 +2,23 @@
 import { create } from 'zustand'
 import { AppSettings, defaultSettings } from '../../../shared/types/settings'
 
+export type SettingsTab = 'general' | 'editor' | 'theme' | 'keybindings' | 'about'
+
 interface SettingsState {
   settings: AppSettings
   isLoaded: boolean
+  activeTab: SettingsTab
 
   // Actions
   loadSettings: () => Promise<void>
-  updateSetting: (path: string, value: AppSettings[keyof AppSettings]) => Promise<void>
+  updateSetting: (path: string, value: any) => Promise<void>
+  setActiveTab: (tab: SettingsTab) => void
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
   settings: defaultSettings, // 初始值，防止闪烁
   isLoaded: false,
+  activeTab: 'theme',
 
   // 从 Electron 读取硬盘上的配置
   loadSettings: async () => {
@@ -49,13 +54,18 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
 
     // 2. 通知 Electron 写入硬盘
     try {
-      await window.api.settings.set(path, value)
+      await (window.api.settings.set as any)(path as keyof AppSettings, value)
     } catch (error) {
       console.error('[Settings] Error updating setting:', error)
 
       // 如果保存失败，回滚到原值
       await get().loadSettings()
     }
+  },
+
+  // 设置活动标签页
+  setActiveTab: (tab: SettingsTab) => {
+    set({ activeTab: tab })
   }
 }))
 

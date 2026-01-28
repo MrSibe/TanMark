@@ -8,11 +8,7 @@ import { ImagePreview } from '../preview/ImagePreview'
 import { useSidebarStore } from '../../stores/useSidebarStore'
 import { useFileStore } from '../../stores/useFileStore'
 import { useState, useEffect, useCallback } from 'react'
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup
-} from '../../components/ui/resizable'
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '../../components/ui/resizable'
 
 export const MainLayout = (): JSX.Element => {
   const { isOpen, open, width } = useSidebarStore()
@@ -30,20 +26,19 @@ export const MainLayout = (): JSX.Element => {
   }, [])
 
   // 将像素宽度转换为百分比
-  const minPercent = (minSidebarWidth / windowWidth) * 100
   const maxPercent = 50
 
   // 使用 useCallback 避免频繁重新渲染
-  const handleLayoutChange = useCallback((sizes: { [id: string]: number }) => {
-    const sidebarSize = sizes['sidebar']
-    if (sidebarSize !== undefined) {
-      const newWidth = Math.max(
-        minSidebarWidth,
-        Math.round((sidebarSize / 100) * windowWidth)
-      )
-      useSidebarStore.getState().setWidth(newWidth)
-    }
-  }, [minSidebarWidth, windowWidth])
+  const handleLayoutChange = useCallback(
+    (sizes: { [id: string]: number }) => {
+      const sidebarSize = sizes['sidebar']
+      if (sidebarSize !== undefined) {
+        const newWidth = Math.max(minSidebarWidth, Math.round((sidebarSize / 100) * windowWidth))
+        useSidebarStore.getState().setWidth(newWidth)
+      }
+    },
+    [minSidebarWidth, windowWidth]
+  )
 
   return (
     <ResizablePanelGroup

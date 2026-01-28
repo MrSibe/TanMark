@@ -1,7 +1,12 @@
-// Tanmark 主题 IPC 处理器 - 双层主题扫描和加载
+// Tanmark 主题 IPC 处理器 - 双格式主题扫描和加载（CSS + JSON）
 import { ipcMain, app, shell, BrowserWindow } from 'electron'
 import fs from 'fs/promises'
 import path from 'path'
+import { ThemeService } from '../services/theme-service'
+import { ThemeInfo } from '@shared/types/theme'
+
+// 创建主题服务实例
+const themeService = new ThemeService()
 
 // 获取主窗口实例（需要在应用启动后调用）
 function getMainWindow(): BrowserWindow | null {
@@ -25,15 +30,6 @@ function updateWindowBackgroundColor(color: string): void {
   if (mainWindow) {
     mainWindow.setBackgroundColor(color)
   }
-}
-
-export interface ThemeInfo {
-  id: string // 主题 ID (文件名，不含扩展名)
-  name: string // 主题名称
-  path: string // 主题文件完整路径
-  content: string // 主题 CSS 内容
-  isDefault: boolean // 是否为默认主题
-  source: 'builtin' | 'user' // 主题来源
 }
 
 /**
@@ -61,15 +57,17 @@ function getUserThemesDirectory(): string {
 /**
  * 从 CSS 注释中解析主题元数据
  */
-function parseThemeMetadata(cssContent: string): { name?: string } {
+function parseThemeMetadata(cssContent: string): { name?: string; previewColor?: string } {
   const nameMatch = cssContent.match(/@theme-name:\s*(.+)$/m)
+  const colorMatch = cssContent.match(/@theme-color:\s*(.+)$/m)
   return {
-    name: nameMatch ? nameMatch[1].trim() : undefined
+    name: nameMatch ? nameMatch[1].trim() : undefined,
+    previewColor: colorMatch ? colorMatch[1].trim() : undefined
   }
 }
 
 /**
- * 扫描指定文件夹，返回所有主题文件
+ * 扫描指定文件夹，返回所有主题文件（支持 JSON 和 CSS）
  */
 async function scanThemesFromDirectory(
   dir: string,
@@ -85,26 +83,47 @@ async function scanThemesFromDirectory(
     const files = await fs.readdir(dir)
 
     for (const file of files) {
-      // 只处理 .css 文件，跳过模板文件
-      if (!file.endsWith('.css') || file === 'template.css') {
+      const ext = path.extname(file).toLowerCase()
+
+      // 只处理 .json 和 .css 文件
+      if (ext !== '.json' && ext !== '.css') {
+        continue
+      }
+
+      // 跳过模板文件
+      if (file === 'template.json' || file === 'template.css') {
         continue
       }
 
       const filePath = path.join(dir, file)
-      const content = await fs.readFile(filePath, 'utf-8')
-      const themeId = path.basename(file, '.css')
+      const themeId = path.basename(file, ext)
 
-      // 解析主题元数据
-      const metadata = parseThemeMetadata(content)
+      try {
+        // 使用 ThemeService 加载主题
+        const { config, css, format } = await themeService.loadTheme(filePath)
 
-      themes.push({
-        id: themeId,
-        name: metadata.name || themeId,
-        path: filePath,
-        content: content,
-        isDefault: themeId === 'github' && source === 'builtin', // 只有内置的 github 是默认主题
-        source: source
-      })
+        // 从配置或元数据获取主题名称
+        const themeName = config?.meta.name || parseThemeMetadata(css || '').name || themeId
+
+        // 从配置中获取预览颜色
+        const previewColor = config?.meta.previewColor || parseThemeMetadata(css || '').previewColor
+
+        themes.push({
+          id: themeId,
+          name: themeName,
+          path: filePath,
+          content: css,
+          config,
+          isDefault: themeId === 'github' && source === 'builtin',
+          source,
+          format: format as 'css' | 'json',
+          previewColor
+        })
+      } catch (error) {
+        console.error(`[Theme] Error loading theme file: ${file}`, error)
+        // 跳过无法加载的主题文件
+        continue
+      }
     }
 
     return themes
@@ -221,5 +240,72 @@ export function registerThemeHandlers(): void {
       updateWindowBackgroundColor(bgColor)
     }
     return true
+  })
+
+  // === 新增：JSON 主题支持 ===
+
+  // 获取主题的 JSON 配置
+  ipcMain.handle('theme:getConfig', async (_, themeId: string) => {
+    try {
+      const themes = await scanAllThemes()
+      const theme = themes.find((t) => t.id === themeId)
+
+      if (!theme) {
+        return null
+      }
+
+      // 如果是 JSON 主题，直接返回配置
+      if (theme.format === 'json' && theme.config) {
+        return theme.config
+      }
+
+      // 如果是 CSS 主题，尝试转换为 JSON
+      if (theme.format === 'css') {
+        const config = await themeService.convertCSStoJSON(theme.path)
+        return config
+      }
+
+      return null
+    } catch (error) {
+      console.error(`[Theme] Error getting theme config:`, error)
+      return null
+    }
+  })
+
+  // 保存 JSON 主题
+  ipcMain.handle('theme:saveJSON', async (_, themeId: string, config: any) => {
+    try {
+      const userDir = getUserThemesDirectory()
+
+      // 确保用户主题文件夹存在
+      await ensureUserThemesDirectory()
+
+      // 保存主题
+      const themePath = path.join(userDir, `${themeId}.json`)
+      await themeService.saveJSONTheme(themePath, config)
+
+      return { success: true, path: themePath }
+    } catch (error) {
+      console.error(`[Theme] Error saving JSON theme:`, error)
+      return { success: false, error: (error as Error).message }
+    }
+  })
+
+  // 验证主题配置
+  ipcMain.handle('theme:validate', async (_, config: any) => {
+    try {
+      // 尝试编译主题来验证
+      const compiler = await import('../ipc/theme-compiler')
+      const themeCompiler = new compiler.ThemeCompiler()
+      const css = themeCompiler.compileToCSS(config)
+
+      // 如果编译成功，说明配置有效
+      return { valid: true, css }
+    } catch (error) {
+      return {
+        valid: false,
+        error: (error as Error).message
+      }
+    }
   })
 }

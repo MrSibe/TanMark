@@ -78,13 +78,13 @@
 }
 
 .tanmark-editor .tanmark-inline-input::selection {
-  background: var(--color-accent);
-  color: #fff;
+  background: var(--selection-bg);
+  color: var(--selection-color);
 }
 
 .tanmark-editor .tanmark-inline-input::-moz-selection {
-  background: var(--color-accent);
-  color: #fff;
+  background: var(--selection-bg);
+  color: var(--selection-color);
 }
 
 /* 列表 */
@@ -135,15 +135,15 @@
 .tanmark-editor pre {
   margin: 1.5em 0;
   padding: 1rem;
-  background: var(--editor-codeblock-bg, #1e1e1e);
-  color: var(--editor-codeblock-text, #d4d4d4);
+  background: var(--editor-codeblock-bg);
+  color: var(--editor-codeblock-text);
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'Courier New', monospace;
   font-size: 0.875rem;
   line-height: 1.6;
   overflow-x: auto;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: var(--codeblock-border);
+  box-shadow: var(--codeblock-shadow);
 }
 
 /* 行内代码 */
@@ -218,8 +218,8 @@
 
 /* 选择样式 */
 .ProseMirror ::selection {
-  background: var(--color-accent);
-  color: #fff;
+  background: var(--selection-bg);
+  color: var(--selection-color);
 }
 
 /* 粗体和斜体 */
@@ -294,7 +294,7 @@
   -webkit-appearance: none;
   width: 1rem;
   height: 1rem;
-  border: 1.5px solid #d0d7de;
+  border: 1.5px solid var(--editor-task-checkbox-border);
   border-radius: 4px;
   cursor: pointer;
   position: relative;
@@ -304,13 +304,13 @@
 }
 
 .tanmark-editor li.tanmark-task-item > label input[type='checkbox']:hover {
-  border-color: #0969da;
-  background: #f6f8fa;
+  border-color: var(--task-checkbox-hover-border);
+  background: var(--task-checkbox-hover-bg);
 }
 
 .tanmark-editor li.tanmark-task-item > label input[type='checkbox']:checked {
-  background: #0969da;
-  border-color: #0969da;
+  background: var(--editor-task-checkbox-checked);
+  border-color: var(--editor-task-checkbox-checked);
 }
 
 /* GitHub 风格对勾 - 居中对齐 */
@@ -341,6 +341,6 @@
 /* 已完成任务的样式 */
 .tanmark-editor li.tanmark-task-item[data-checked='true'] > div {
   text-decoration: line-through;
-  color: #6e7781;
+  color: var(--task-completed-text);
   opacity: 0.75;
 }

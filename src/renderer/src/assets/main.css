@@ -6,6 +6,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  /* shadcn/ui 基础变量 */
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -34,6 +35,67 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Tanmark 主题变量 - 默认值（GitHub Light） */
+  --color-bg: #fafafa;
+  --color-bg-secondary: #ffffff;
+  --color-sidebar-bg: #f7f7f7;
+  --color-fg: #333333;
+  --color-fg-secondary: #666666;
+  --color-fg-muted: #999999;
+  --color-fg-on-dark: #ffffff;
+  --color-border: #e0e0e0;
+  --color-border-light: #f0f0f0;
+  --color-divider: #e5e5e5;
+  --color-hover: #eeeeee;
+  --color-active: #e0e0e0;
+  --color-focus: #4a9eff;
+  --color-accent: #4a9eff;
+  --color-accent-hover: #3a8eef;
+  --color-success: #28a745;
+  --color-warning: #ffc107;
+  --color-error: #dc3545;
+  --color-info: #17a2b8;
+
+  /* 编辑器默认样式 */
+  --editor-text-color: #24292e;
+  --editor-heading-color: #1a1e22;
+  --editor-h1-color: #1a1e22;
+  --editor-h2-color: #24292e;
+  --editor-h3-color: #24292e;
+  --editor-link-color: #4a9eff;
+  --editor-link-hover-color: #3a8eef;
+  --editor-code-bg: #f6f8fa;
+  --editor-code-color: #24292e;
+  --editor-code-border: #d1d9e0;
+  --editor-codeblock-bg: #0d1117;
+  --editor-codeblock-text: #e6edf3;
+  --editor-blockquote-border: #4a9eff;
+  --editor-blockquote-bg: #f6f8fa;
+  --editor-blockquote-text: #57606a;
+  --editor-table-border: #d1d9e0;
+  --editor-table-header-bg: #f6f8fa;
+  --editor-table-header-text: #24292e;
+  --editor-table-row-even-bg: #ffffff;
+  --editor-table-row-hover-bg: #f6f8fa;
+  --editor-hr-color: #e0e0e0;
+  --editor-list-marker-color: #4a9eff;
+  --editor-task-checkbox-border: #e0e0e0;
+  --editor-task-checkbox-checked: #4a9eff;
+  --editor-font-size: 16px;
+  --editor-line-height: 1.75;
+  --editor-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  --editor-code-font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  --editor-heading-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  --editor-heading-font-weight: 600;
+  --editor-h1-size: 2.25rem;
+  --editor-h2-size: 1.875rem;
+  --editor-h3-size: 1.5rem;
+  --editor-h4-size: 1.25rem;
+  --editor-h5-size: 1.125rem;
+  --editor-h6-size: 1rem;
+  --editor-max-width: 900px;
+  --editor-padding: 40px;
 }
 
 .dark {
@@ -105,4 +167,259 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* ============================================================
+   布局样式 - 始终加载，不受主题切换影响
+   ============================================================ */
+
+/* 主布局容器 */
+.sidebar-column {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-sidebar-bg);
+  flex-shrink: 0;
+}
+
+.editor-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  overflow: hidden;
+}
+
+.titlebar-left,
+.titlebar-right {
+  height: 28px;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+.titlebar-left {
+  -webkit-app-region: drag;
+}
+
+.titlebar-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  -webkit-app-region: drag;
+}
+
+.editor-wrapper {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 可拖动的分隔条 */
+.resizer {
+  width: 1px;
+  background: var(--resizer-bg);
+  cursor: col-resize;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.resizer:hover {
+  background: var(--resizer-hover-bg);
+}
+
+.resizer:active {
+  background: var(--color-accent);
+}
+
+/* 侧边栏切换按钮 */
+.sidebar-toggle-button {
+  position: absolute;
+  left: 70px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  color: var(--color-fg);
+  -webkit-app-region: no-drag;
+}
+
+.sidebar-toggle-button:hover {
+  background: var(--color-hover);
+}
+
+/* 标题栏样式 */
+.titlebar {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  padding: 0 0.5rem;
+  user-select: none;
+}
+
+.titlebar-title {
+  font-size: 0.75rem;
+  color: var(--color-fg);
+  font-weight: 500;
+  text-align: center;
+  -webkit-app-region: no-drag;
+}
+
+.titlebar-settings-button {
+  position: absolute;
+  right: 0.5rem;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  color: var(--color-fg);
+  -webkit-app-region: no-drag;
+}
+
+.titlebar-settings-button:hover {
+  background: var(--color-hover);
+  color: var(--color-accent);
+}
+
+/* 侧边栏样式 */
+.sidebar {
+  background: var(--color-sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+}
+
+.sidebar-header {
+  padding: 0.25rem 0.5rem;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  min-height: 28px;
+  flex-shrink: 0;
+}
+
+.sidebar-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-fg);
+  text-align: center;
+  grid-column: 2;
+  user-select: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  padding: 0 0.5rem;
+}
+
+.sidebar-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.sidebar-actions:first-child {
+  justify-content: flex-start;
+}
+
+.sidebar-actions:last-child {
+  justify-content: flex-end;
+}
+
+.sidebar-button {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  color: var(--color-fg);
+}
+
+.sidebar-button:hover {
+  background: var(--color-hover);
+}
+
+/* 文件树样式 */
+.file-tree {
+  padding: 0.5rem 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+}
+
+.file-tree-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 0.75rem;
+  color: var(--empty-state-color);
+  user-select: none;
+}
+
+.file-tree-item {
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--color-fg);
+  user-select: none;
+}
+
+.file-tree-item:hover {
+  background: var(--color-hover);
+}
+
+.file-tree-item.active {
+  background: var(--color-active);
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.file-tree-item-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.file-tree-item-name {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.file-tree-item-folder {
+  padding-left: 0;
+}
+
+.file-tree-item-file {
+  padding-left: 0;
+}
+
+.file-tree-children {
+  margin-left: 0;
+}
+
+/* 编辑器容器 */
+.editor-container {
+  background: var(--color-bg);
+  overflow-y: auto;
 }

@@ -43,14 +43,19 @@ const api = {
     }
   },
 
-  // 主题 API
+  // 主题 API（扩展支持 JSON）
   theme: {
     getAll: () => ipcRenderer.invoke('theme:getAll'),
     getContent: (themeId: string) => ipcRenderer.invoke('theme:getContent', themeId),
     getDefault: () => ipcRenderer.invoke('theme:getDefault'),
     getUserThemesPath: () => ipcRenderer.invoke('theme:getUserThemesPath'),
     openUserThemesFolder: () => ipcRenderer.invoke('theme:openUserThemesFolder'),
-    applyTheme: (cssContent: string) => ipcRenderer.invoke('theme:applyTheme', cssContent)
+    applyTheme: (cssContent: string) => ipcRenderer.invoke('theme:applyTheme', cssContent),
+    // 新增：JSON 主题支持
+    getConfig: (themeId: string) => ipcRenderer.invoke('theme:getConfig', themeId),
+    saveJSON: (themeId: string, config: any) =>
+      ipcRenderer.invoke('theme:saveJSON', themeId, config),
+    validate: (config: any) => ipcRenderer.invoke('theme:validate', config)
   },
 
   // 图片操作
